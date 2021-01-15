@@ -11,11 +11,10 @@ import pandas as pd
 import numpy as np
 import geopy.distance
 
-working_dir="/Users/jason/Dropbox/AWS/AWS_Airport_positions/" # change this in your local system
+working_dir='/Users/jason/Dropbox/AWS/AWS_maintenance_flight_planner/' # change this in your local system
 os.chdir(working_dir)
 
-fn="./distances/sites.csv"
-df= pd.read_csv(fn)
+df= pd.read_csv('./planning_info/all_sites.csv')
 df=df.drop(["Unnamed: 0"], axis=1)
 # print(df.columns)
 
