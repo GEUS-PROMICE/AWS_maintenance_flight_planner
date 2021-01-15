@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 import geopy.distance
 
-working_dir='/Users/jason/Dropbox/AWS/AWS_Airport_positions/' # change this in your local system
+working_dir='/Users/jason/Dropbox/AWS/AWS_maintenance_flight_planner/' # change this in your local system
 os.chdir(working_dir)
 
 
@@ -56,4 +56,4 @@ df.lon=d[1,:]
 df.name=name
 df.id=cod
 
-df.to_csv('./distances/sites.csv')
+df.to_csv('./planning_info/all_sites.csv')
