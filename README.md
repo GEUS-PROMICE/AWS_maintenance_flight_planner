@@ -1,23 +1,7 @@
 # AWS_maintenance_flight_planner
 AWS_maintenance_flight_planner
 
-The inputs are location A to  B, start time, stoppage time. The latest code it looks like to following for days 1-3:
-
-start_time=8.5
-print();print("day "+str(day_counter)+", start_time: "+str(start_time))
-start_time=inter_dist("AEY","KUS",start_time,1)
-start_time=inter_dist("KUS","GOH",start_time,1)
-day_counter+=1
-
-print();print("weather delay, day "+str(day_counter))
-day_counter+=1
-
-start_time=8.5
-print();print("day "+str(day_counter)+", start_time: "+str(start_time))
-start_time=inter_dist("GOH","DY2",start_time,4.5)
-start_time=inter_dist("DY2","SFJ",start_time,1)
-day_counter+=1
-
+The inputs are location A to  B, start time, stoppage time. 
 first cut at a S Traverse flight plan reads:
 
 day 1, start_time: 8.5
