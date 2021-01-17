@@ -31,7 +31,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
     kml = simplekml.Kml(open=1)
     
     if ((C!="")&(D!="")):
-        lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
+        lin = kml.newlinestring(name="path", description="flight legs",
                     coords=[(float(df.lon[df.id==A]),float(df.lat[df.id==A])),
                             (float(df.lon[df.id==B]),float(df.lat[df.id==B])),
                             (float(df.lon[df.id==C]),float(df.lat[df.id==C])),
@@ -41,7 +41,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
         kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
 
     if ((C!="")&(D=="")):
-        lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
+        lin = kml.newlinestring(name="path", description="flight legs",
                     coords=[(float(df.lon[df.id==A]),float(df.lat[df.id==A])),
                             (float(df.lon[df.id==B]),float(df.lat[df.id==B])),
                             (float(df.lon[df.id==C]),float(df.lat[df.id==C]))
@@ -50,7 +50,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
         kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
 
     if ((B!="")&(C=="")&(D=="")):
-        lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
+        lin = kml.newlinestring(name="path", description="flight legs",
                     coords=[(float(df.lon[df.id==A]),float(df.lat[df.id==A])),
                             (float(df.lon[df.id==B]),float(df.lat[df.id==B]))
                             ]
