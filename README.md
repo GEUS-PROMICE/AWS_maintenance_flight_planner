@@ -4,3 +4,4 @@ outputs:
     .csv and Excel versions
     kml Google Earth lines between places
 
+![](images/example_map.jpg)
