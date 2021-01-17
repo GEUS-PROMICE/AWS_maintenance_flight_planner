@@ -3,6 +3,12 @@
 """
 Created on 2021 01 16
 
+user inserts flight plan data below, start time, stop time, airport codes of starting and ending locations
+
+outputs:
+    .csv and Excel versions
+    kml Google Earth lines between places
+    
 @author: Jason Box, GEUS.dk
 
 """
@@ -32,7 +38,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
                             (float(df.lon[df.id==D]),float(df.lat[df.id==D]))
                             ]
                     )
-        kml_ofile="./planning_info/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
+        kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
 
     if ((C!="")&(D=="")):
         lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
@@ -41,7 +47,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
                             (float(df.lon[df.id==C]),float(df.lat[df.id==C]))
                             ]
                     )
-        kml_ofile="./planning_info/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
+        kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
 
     if ((B!="")&(C=="")&(D=="")):
         lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
@@ -50,7 +56,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
                             ]
                     )
 
-        kml_ofile="./planning_info/day"+str(day_counter)+"_"+A+"_to_"+B+".kml"
+        kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+".kml"
 
     lin.lookat.latitude = 72
     lin.lookat.longitude = -55
@@ -90,16 +96,19 @@ def inter_dist(start_time,day_counter,A,B,time,stop_time):
     d=geopy.distance.distance(coords_1, coords_2).nm
     t=d/airspeed
     time+=t
-    # print(time,t)
+    BB=str(df.name[df.id==B].values)[2:-2]
+    AA=str(df.name[df.id==A].values)[2:-2]
+    print(BB)
     # print(df.name[df.id==A].aslist)
     # ,">",df.name[df.id==B])
     out_string=str(day_counter)+","+str(start_time)+\
         ","+A+","+B+",{:.0f}".format(d)+",{:.2f}".format(t)+","+ \
           "{:.1f}".format(time)+","+str(stop_time)+\
           ",{:.4f}".format(coords_1[0])+",{:.4f}".format(coords_1[1])+","+\
-          "{:.4f}".format(coords_2[0])+",{:.4f}".format(coords_2[1])
+          "{:.4f}".format(coords_2[0])+",{:.4f}".format(coords_2[1])+","+\
+              AA+","+BB
     # print(out_string)
-    print(out_string)
+    # print(out_
     out_concept.write(out_string+"\n")
     time+=stop_time
 
@@ -109,10 +118,11 @@ def inter_dist(start_time,day_counter,A,B,time,stop_time):
 campaign="Campaign_S_traverse_2021"""
 ofile="./planning_info/"+campaign
 out_concept=open(ofile+".csv","w+")
-out_concept.write('day,start time,from,to,distance nm,fly time,arrival time,stoppage time,from lat,from lon,destination lat,destination lon\n')
+out_concept.write('day,start time,from,to,distance nm,fly time,arrival time,stoppage time,from lat,from lon,destination lat,destination lon,start location name,landing location name\n')
 
 # ------------------------------------------------ start define plan
 
+df.name[df.id=="AEY"]
 day_counter=1
 start_time=8.5 ; time=start_time
 time=inter_dist(start_time,day_counter,"AEY","KUS",time,1)
@@ -171,8 +181,8 @@ out_concept.close()
 os.system("cat "+ofile+".csv")
 
 # write to csv
-df=pd.read_csv(ofile+".csv")
+df2=pd.read_csv(ofile+".csv")
 # df=df.reset_index(drop=True, inplace=True)
 
 # write to Excel
-df.to_excel(ofile+".xlsx", index=False)
+df2.to_excel(ofile+".xlsx", index=False)
