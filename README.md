@@ -8,4 +8,4 @@ outputs:
 
 site info:
 
-![](planning_info/all_sites.csv)
+[list of site names and coordinates](planning_info/all_sites.csv)
