@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="485">
+        <Style id="490">
+            <LineStyle id="491">
+                <color>ffff0000</color>
+                <colorMode>normal</colorMode>
+                <width>2</width>
+            </LineStyle>
+        </Style>
+        <open>1</open>
+        <Placemark id="487">
+            <name>Pathway</name>
+            <description>A pathway in Kirstenbosch</description>
+            <LineString id="486">
+                <coordinates>-50.71096370000001,67.01060030000001,0.0 -46.98667,69.87975,0.0 -51.06637929999999,69.24054659999999,0.0</coordinates>
+            </LineString>
+        </Placemark>
+        <Placemark id="489">
+            <name>Pathway</name>
+            <description>A pathway in Kirstenbosch</description>
+            <styleUrl>#490</styleUrl>
+            <LineString id="488">
+                <coordinates>-50.71096370000001,67.01060030000001,0.0 -46.98667,69.87975,0.0</coordinates>
+            </LineString>
+        </Placemark>
+    </Document>
+</kml>
