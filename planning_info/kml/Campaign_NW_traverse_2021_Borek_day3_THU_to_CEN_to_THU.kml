@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
-    <Document id="2797">
-        <Style id="2801">
-            <LineStyle id="2802">
-                <color>ffff0000</color>
+    <Document id="3224">
+        <Style id="3228">
+            <LineStyle id="3229">
+                <color>ff0000ff</color>
                 <colorMode>normal</colorMode>
                 <width>2</width>
             </LineStyle>
         </Style>
         <open>1</open>
-        <Placemark id="2799">
+        <Placemark id="3226">
             <name>path</name>
             <description>flight legs</description>
             <LookAt>
@@ -19,9 +19,9 @@
                 <tilt>0</tilt>
                 <range>3000000</range>
             </LookAt>
-            <styleUrl>#2801</styleUrl>
-            <LineString id="2798">
-                <coordinates>-50.71096370000001,67.01060030000001,0.0 -46.98667,69.87975,0.0 -51.06637929999999,69.24054659999999,0.0</coordinates>
+            <styleUrl>#3228</styleUrl>
+            <LineString id="3225">
+                <coordinates>-68.6999101,76.53330760000001,0.0 -61.03,77.13,0.0 -68.6999101,76.53330760000001,0.0</coordinates>
             </LineString>
         </Placemark>
     </Document>

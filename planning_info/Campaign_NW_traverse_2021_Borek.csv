@@ -1,0 +1,12 @@
+day,start time,from,to,distance nm,fly time,arrival time,stoppage time,from lat,from lon,destination lat,destination lon,start location name,landing location name
+1,8.5,POL,THU,405,3.11,11.6,1,74.7184,-94.9842,76.5333,-68.6999,Polar Continental Shelf Program,Thule Air Base
+2, weather delay
+3,8.5,THU,CEN,111,0.86,13.5,4.5,76.5333,-68.6999,77.1300,-61.0300,Thule Air Base,CEN
+3,8.5,CEN,THU,111,0.86,18.8,18,77.1300,-61.0300,76.5333,-68.6999,CEN,Thule Air Base
+4,8.5,THU,HUM,195,1.50,38.3,4.5,76.5333,-68.6999,78.5266,-56.8305,Thule Air Base,Humboldt
+4,8.5,HUM,THU,195,1.50,44.3,18,78.5266,-56.8305,76.5333,-68.6999,Humboldt,Thule Air Base
+5,8.5,THU,PET,250,1.92,64.2,4.5,76.5333,-68.6999,80.0971,-58.1384,Thule Air Base,Petermann ELA
+5,8.5,PET,THU,250,1.92,70.7,18,80.0971,-58.1384,76.5333,-68.6999,Petermann ELA,Thule Air Base
+6,8.5,THU,NEM,247,1.90,90.6,4.5,76.5333,-68.6999,77.5022,-50.8744,Thule Air Base,NEEM
+6,8.5,NEM,THU,247,1.90,97.0,18,77.5022,-50.8744,76.5333,-68.6999,NEEM,Thule Air Base
+7,8.5,THU,POL,405,3.11,118.1,4.5,76.5333,-68.6999,74.7184,-94.9842,Thule Air Base,Polar Continental Shelf Program

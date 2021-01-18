@@ -26,7 +26,7 @@ df=df.drop(["Unnamed: 0"], axis=1)
 # print(df.columns)
 
 # ------------------------------------------------ start function to output kml for Google Earth
-def output_kml(day_counter,A,B,C,D,cchoice)    :
+def output_kml(campaign,day_counter,A,B,C,D,cchoice)    :
 
     kml = simplekml.Kml(open=1)
     
@@ -38,7 +38,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
                             (float(df.lon[df.id==D]),float(df.lat[df.id==D]))
                             ]
                     )
-        kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
+        kml_ofile="./planning_info/kml/"+campaign+"_day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
 
     if ((C!="")&(D=="")):
         lin = kml.newlinestring(name="path", description="flight legs",
@@ -47,7 +47,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
                             (float(df.lon[df.id==C]),float(df.lat[df.id==C]))
                             ]
                     )
-        kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
+        kml_ofile="./planning_info/kml/"+campaign+"_day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
 
     if ((B!="")&(C=="")&(D=="")):
         lin = kml.newlinestring(name="path", description="flight legs",
@@ -56,7 +56,7 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
                             ]
                     )
 
-        kml_ofile="./planning_info/kml/day"+str(day_counter)+"_"+A+"_to_"+B+".kml"
+        kml_ofile="./planning_info/kml/"+campaign+"_day"+str(day_counter)+"_"+A+"_to_"+B+".kml"
 
     lin.lookat.latitude = 72
     lin.lookat.longitude = -55
@@ -92,7 +92,7 @@ cadetblue = 'ffa09e5f'
 def inter_dist(start_time,day_counter,A,B,time,stop_time):
     coords_1 = (float(df.lat[df.id==A]),float(df.lon[df.id==A]))
     coords_2 = (float(df.lat[df.id==B]),float(df.lon[df.id==B]))
-    airspeed=150 # kts
+    airspeed=130 # kts
     d=geopy.distance.distance(coords_1, coords_2).nm
     t=d/airspeed
     time+=t
@@ -115,64 +115,119 @@ def inter_dist(start_time,day_counter,A,B,time,stop_time):
     return time
 # ------------------------------------------------ end function to output ASCII text lines to be read into dataframe
 
-campaign="Campaign_S_traverse_2021"""
+campaign="Campaign_S_traverse_2021_Nordland"
+# campaign="Campaign_NW_traverse_2021_Borek"
+
 ofile="./planning_info/"+campaign
 out_concept=open(ofile+".csv","w+")
 out_concept.write('day,start time,from,to,distance nm,fly time,arrival time,stoppage time,from lat,from lon,destination lat,destination lon,start location name,landing location name\n')
 
 # ------------------------------------------------ start define plan
 
-df.name[df.id=="AEY"]
-day_counter=1
-start_time=8.5 ; time=start_time
-time=inter_dist(start_time,day_counter,"AEY","KUS",time,1)
-time=inter_dist(start_time,day_counter,"KUS","GOH",time,18)
-output_kml(day_counter,"AEY","KUS","GOH","",red)
-day_counter+=1
+if campaign=="Campaign_NW_traverse_2021_Borek":
 
-# ------------------------------------ artifical weather delay
-out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    df.name[df.id=="POL"]
+    day_counter=1
+    start_time=8.5 ; time=start_time
+    time=inter_dist(start_time,day_counter,"POL","THU",time,1)
+    output_kml(campaign,day_counter,"POL","THU","","",red)
+    day_counter+=1
+    
+    # ------------------------------------ artifical weather delay
+    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    
+    # 2 AWS on board; DY2 and CP1
+    # add cargo mass = 150 kg / AWS
+    # tools 50 kg
+    # PAX = 3
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","CEN",time,4.5)
+    time=inter_dist(start_time,day_counter,"CEN","THU",time,18)
+    output_kml(campaign,day_counter,"THU","CEN","THU","",red)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","HUM",time,4.5)
+    time=inter_dist(start_time,day_counter,"HUM","THU",time,18)
+    output_kml(campaign,day_counter,"THU","HUM","THU","",aqua)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","PET",time,4.5)
+    time=inter_dist(start_time,day_counter,"PET","THU",time,18)
+    output_kml(campaign,day_counter,"THU","PET","THU","",orange)
+    day_counter+=1
+    
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","NEM",time,4.5)
+    time=inter_dist(start_time,day_counter,"NEM","THU",time,18)
+    output_kml(campaign,day_counter,"THU","NEM","THU","",blue)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","POL",time,4.5)
+    output_kml(campaign,day_counter,"THU","POL","","",black)
+    day_counter+=1
 
-start_time=8.5
-time=inter_dist(start_time,day_counter,"GOH","DY2",time,4.5)
-start_time=inter_dist(start_time,day_counter,"DY2","SFJ",time,18)
-output_kml(day_counter,"GOH","DY2","SFJ","",aqua)
-day_counter+=1
 
-start_time=8.5
-time=inter_dist(start_time,day_counter,"SFJ","SDL",time,0.7)
-time=inter_dist(start_time,day_counter,"SDL","DY2",time,4.5)
-time=inter_dist(start_time,day_counter,"DY2","SFJ",time,18)
-output_kml(day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
-day_counter+=1
+if campaign=="Campaign_S_traverse_2021_Nordland":
 
+    df.name[df.id=="AEY"]
+    day_counter=1
+    start_time=8.5 ; time=start_time
+    time=inter_dist(start_time,day_counter,"AEY","KUS",time,1)
+    time=inter_dist(start_time,day_counter,"KUS","GOH",time,18)
+    output_kml(campaign,day_counter,"AEY","KUS","GOH","",red)
+    day_counter+=1
+    
+    # ------------------------------------ artifical weather delay
+    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    
+    # 2 AWS on board; DY2 and CP1
+    # add cargo mass = 150 kg / AWS
+    # tools 50 kg
+    # PAX = 3
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"GOH","DY2",time,4.5)
+    time=inter_dist(start_time,day_counter,"DY2","SFJ",time,18)
+    output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"SFJ","SDL",time,0.7)
+    time=inter_dist(start_time,day_counter,"SDL","DY2",time,4.5)
+    time=inter_dist(start_time,day_counter,"DY2","SFJ",time,18)
+    output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"SFJ","CP1",time,4.5)
+    time=inter_dist(start_time,day_counter,"CP1","JAV",time,18)
+    output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
+    day_counter+=1
+    
+    # ------------------------------------ artifical weather delay
+    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    
+    start_time=8.
+    time=inter_dist(start_time,day_counter,"JAV","DY2",time,0.6)
+    time=inter_dist(start_time,day_counter,"DY2","SDM",time,4.5)
+    time=inter_dist(start_time,day_counter,"SDM","UAK",time,18)
+    output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
+    day_counter+=1
+    
+    start_time=8.
+    time=inter_dist(start_time,day_counter,"UAK","GOH",time,0.6)
+    output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
+    day_counter+=1
+    
+    start_time=8.
+    time=inter_dist(start_time,day_counter,"GOH","NSE",time,4.5)
+    time=inter_dist(start_time,day_counter,"NSE","KUS",time,18)
+    output_kml(campaign,day_counter,"GOH","NSE","KUS","",orange)
+    day_counter+=1
 
-start_time=8.5
-time=inter_dist(start_time,day_counter,"SFJ","CP1",time,4.5)
-time=inter_dist(start_time,day_counter,"CP1","JAV",time,18)
-output_kml(day_counter,"SFJ","CP1","JAV","",blue)
-day_counter+=1
-
-# ------------------------------------ artifical weather delay
-out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
-
-start_time=8.
-time=inter_dist(start_time,day_counter,"JAV","DY2",time,0.6)
-time=inter_dist(start_time,day_counter,"DY2","SDM",time,4.5)
-time=inter_dist(start_time,day_counter,"SDM","UAK",time,18)
-output_kml(day_counter,"JAV","DY2","SDM","UAK",black)
-day_counter+=1
-
-start_time=8.
-time=inter_dist(start_time,day_counter,"UAK","GOH",time,0.6)
-output_kml(day_counter,"UAK","GOH","","",blueviolet)
-day_counter+=1
-
-start_time=8.
-time=inter_dist(start_time,day_counter,"GOH","NSE",time,4.5)
-time=inter_dist(start_time,day_counter,"NSE","KUS",time,18)
-output_kml(day_counter,"GOH","NSE","KUS","",orange)
-day_counter+=1
 
 # ------------------------------------------------ end define plan
 
