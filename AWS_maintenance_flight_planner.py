@@ -3,6 +3,12 @@
 """
 Created on 2021 01 16
 
+user inserts flight plan data below, start time, stop time, airport codes of starting and ending locations
+
+outputs:
+    .csv and Excel versions
+    kml Google Earth lines between places
+    
 @author: Jason Box, GEUS.dk
 
 """
@@ -19,65 +25,43 @@ df= pd.read_csv("./planning_info/all_sites.csv")
 df=df.drop(["Unnamed: 0"], axis=1)
 # print(df.columns)
 
-def inter_dist(A,B,start_time,stop_time):
-    coords_1 = (float(df.lat[df.id==A]),float(df.lon[df.id==A]))
-    coords_2 = (float(df.lat[df.id==B]),float(df.lon[df.id==B]))
-    airspeed=150 # kts
-    d=geopy.distance.distance(coords_1, coords_2).nm
-    t=d/airspeed
-    start_time+=t
-    # print(df.name[df.id==A].aslist)
-    # ,">",df.name[df.id==B])
-    out_string=A+">"+B+",{:.0f}".format(d)+" nm,{:.2f}".format(t)+"h transit,"+ \
-          "arrival time{:.1f}".format(start_time)+" nm, stop time "+str(stop_time)+\
-          "h,"+A+":{:.4f}".format(coords_1[0])+"N"+",{:.4f}".format(abs(coords_1[1]))+"W,"+\
-          B+":{:.4f}".format(coords_2[0])+"N"+",{:.4f}".format(abs(coords_2[1]))+"W"
-    # print(out_string)
-    out_concept.write(out_string+"\n")
-    start_time+=stop_time
-
-    return start_time
-
-def day_start(day_counter,start_time):
-    out_string="day "+str(day_counter)+", start_time: "+str(start_time)
-    out_concept.write(out_string+"\n")
-
-def output_kml(day_counter,A,B,C,D,cchoice)    :
+# ------------------------------------------------ start function to output kml for Google Earth
+def output_kml(campaign,day_counter,A,B,C,D,cchoice)    :
 
     kml = simplekml.Kml(open=1)
     
     if ((C!="")&(D!="")):
-        lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
+        lin = kml.newlinestring(name="path", description="flight legs",
                     coords=[(float(df.lon[df.id==A]),float(df.lat[df.id==A])),
                             (float(df.lon[df.id==B]),float(df.lat[df.id==B])),
                             (float(df.lon[df.id==C]),float(df.lat[df.id==C])),
                             (float(df.lon[df.id==D]),float(df.lat[df.id==D]))
                             ]
                     )
-        ofile="./planning_info/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
+        kml_ofile="./planning_info/kml/"+campaign+"_day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+"_to_"+D+".kml"
 
     if ((C!="")&(D=="")):
-        lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
+        lin = kml.newlinestring(name="path", description="flight legs",
                     coords=[(float(df.lon[df.id==A]),float(df.lat[df.id==A])),
                             (float(df.lon[df.id==B]),float(df.lat[df.id==B])),
                             (float(df.lon[df.id==C]),float(df.lat[df.id==C]))
                             ]
                     )
-        ofile="./planning_info/day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
+        kml_ofile="./planning_info/kml/"+campaign+"_day"+str(day_counter)+"_"+A+"_to_"+B+"_to_"+C+".kml"
 
     if ((B!="")&(C=="")&(D=="")):
-        lin = kml.newlinestring(name="Pathway", description="A pathway in Kirstenbosch",
+        lin = kml.newlinestring(name="path", description="flight legs",
                     coords=[(float(df.lon[df.id==A]),float(df.lat[df.id==A])),
                             (float(df.lon[df.id==B]),float(df.lat[df.id==B]))
                             ]
                     )
 
-        ofile="./planning_info/day"+str(day_counter)+"_"+A+"_to_"+B+".kml"
+        kml_ofile="./planning_info/kml/"+campaign+"_day"+str(day_counter)+"_"+A+"_to_"+B+".kml"
 
-    lin.lookat.latitude = float(df.lat[df.id==A])
-    lin.lookat.longitude = float(df.lon[df.id==A])
+    lin.lookat.latitude = 72
+    lin.lookat.longitude = -55
     lin.lookat.range = 3000000
-    lin.lookat.heading = 56
+    lin.lookat.heading = 0
     lin.lookat.tilt = 0
 
     lin.style.linestyle.color = cchoice
@@ -87,12 +71,8 @@ def output_kml(day_counter,A,B,C,D,cchoice)    :
     # linestring.coords = [(float(df.lon[df.id==A]),float(df.lat[df.id==A])),(float(df.lon[df.id==B]),float(df.lat[df.id==B]))]
     
     # Save the KML
-    kml.save(ofile)
-
-campaign="S_traverse_2021_v1"""
-ofile="./planning_info"+campaign+".csv"
-out_concept=open(ofile,"w+")
-
+    kml.save(kml_ofile)
+# ------------------------------------------------ end function to output kml for Google Earth
 
 red = 'ff0000ff'
 antiquewhite = 'ffd7ebfa'
@@ -108,67 +88,156 @@ brown = 'ff2a2aa5'
 burlywood = 'ff87b8de'
 cadetblue = 'ffa09e5f'
 
-# -------------------------------------- start set plan
+# ------------------------------------------------ start function to output ASCII text lines to be read into dataframe
+def inter_dist(start_time,day_counter,A,B,time,stop_time):
+    coords_1 = (float(df.lat[df.id==A]),float(df.lon[df.id==A]))
+    coords_2 = (float(df.lat[df.id==B]),float(df.lon[df.id==B]))
+    airspeed=130 # kts
+    d=geopy.distance.distance(coords_1, coords_2).nm
+    t=d/airspeed
+    time+=t
+    BB=str(df.name[df.id==B].values)[2:-2]
+    AA=str(df.name[df.id==A].values)[2:-2]
+    print(BB)
+    # print(df.name[df.id==A].aslist)
+    # ,">",df.name[df.id==B])
+    out_string=str(day_counter)+","+str(start_time)+\
+        ","+A+","+B+",{:.0f}".format(d)+",{:.2f}".format(t)+","+ \
+          "{:.1f}".format(time)+","+str(stop_time)+\
+          ",{:.4f}".format(coords_1[0])+",{:.4f}".format(coords_1[1])+","+\
+          "{:.4f}".format(coords_2[0])+",{:.4f}".format(coords_2[1])+","+\
+              AA+","+BB
+    # print(out_string)
+    # print(out_
+    out_concept.write(out_string+"\n")
+    time+=stop_time
 
-day_counter=1
-start_time=8.5
-day_start(day_counter,start_time)
-start_time=inter_dist("AEY","KUS",start_time,1)
-start_time=inter_dist("KUS","GOH",start_time,1)
-output_kml(day_counter,"AEY","KUS","GOH","",red)
-day_counter+=1
+    return time
+# ------------------------------------------------ end function to output ASCII text lines to be read into dataframe
 
-print();print("weather delay, day "+str(day_counter))
-day_counter+=1
+campaign="Campaign_S_traverse_2021_Nordland"
+# campaign="Campaign_NW_traverse_2021_Borek"
 
-start_time=8.5
-day_start(day_counter,start_time)
-start_time=inter_dist("GOH","DY2",start_time,4.5)
-start_time=inter_dist("DY2","SFJ",start_time,1)
-output_kml(day_counter,"GOH","DY2","SFJ","",aqua)
-day_counter+=1
+ofile="./planning_info/"+campaign
+out_concept=open(ofile+".csv","w+")
+out_concept.write('day,start time,from,to,distance nm,fly time,arrival time,stoppage time,from lat,from lon,destination lat,destination lon,start location name,landing location name\n')
 
-start_time=8.5
-day_start(day_counter,start_time)
-start_time=inter_dist("SFJ","SDL",start_time,0.7)
-start_time=inter_dist("SDL","DY2",start_time,4.5)
-start_time=inter_dist("DY2","SFJ",start_time,18)
-output_kml(day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
-day_counter+=1
+# ------------------------------------------------ start define plan
+
+if campaign=="Campaign_NW_traverse_2021_Borek":
+
+    df.name[df.id=="POL"]
+    day_counter=1
+    start_time=8.5 ; time=start_time
+    time=inter_dist(start_time,day_counter,"POL","THU",time,1)
+    output_kml(campaign,day_counter,"POL","THU","","",red)
+    day_counter+=1
+    
+    # ------------------------------------ artifical weather delay
+    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    
+    # 2 AWS on board; DY2 and CP1
+    # add cargo mass = 150 kg / AWS
+    # tools 50 kg
+    # PAX = 3
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","CEN",time,4.5)
+    time=inter_dist(start_time,day_counter,"CEN","THU",time,18)
+    output_kml(campaign,day_counter,"THU","CEN","THU","",red)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","HUM",time,4.5)
+    time=inter_dist(start_time,day_counter,"HUM","THU",time,18)
+    output_kml(campaign,day_counter,"THU","HUM","THU","",aqua)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","PET",time,4.5)
+    time=inter_dist(start_time,day_counter,"PET","THU",time,18)
+    output_kml(campaign,day_counter,"THU","PET","THU","",orange)
+    day_counter+=1
+    
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","NEM",time,4.5)
+    time=inter_dist(start_time,day_counter,"NEM","THU",time,18)
+    output_kml(campaign,day_counter,"THU","NEM","THU","",blue)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"THU","POL",time,4.5)
+    output_kml(campaign,day_counter,"THU","POL","","",black)
+    day_counter+=1
 
 
-start_time=8.5
-day_start(day_counter,start_time)
-start_time=inter_dist("SFJ","CP1",start_time,4.5)
-start_time=inter_dist("CP1","JAV",start_time,18)
-output_kml(day_counter,"SFJ","CP1","JAV","",blue)
-day_counter+=1
+if campaign=="Campaign_S_traverse_2021_Nordland":
 
-print();print("weather delay, day "+str(day_counter))
-day_counter+=1
+    df.name[df.id=="AEY"]
+    day_counter=1
+    start_time=8.5 ; time=start_time
+    time=inter_dist(start_time,day_counter,"AEY","KUS",time,1)
+    time=inter_dist(start_time,day_counter,"KUS","GOH",time,18)
+    output_kml(campaign,day_counter,"AEY","KUS","GOH","",red)
+    day_counter+=1
+    
+    # ------------------------------------ artifical weather delay
+    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    
+    # 2 AWS on board; DY2 and CP1
+    # add cargo mass = 150 kg / AWS
+    # tools 50 kg
+    # PAX = 3
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"GOH","DY2",time,4.5)
+    time=inter_dist(start_time,day_counter,"DY2","SFJ",time,18)
+    output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"SFJ","SDL",time,0.7)
+    time=inter_dist(start_time,day_counter,"SDL","DY2",time,4.5)
+    time=inter_dist(start_time,day_counter,"DY2","SFJ",time,18)
+    output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
+    day_counter+=1
+    
+    start_time=8.5
+    time=inter_dist(start_time,day_counter,"SFJ","CP1",time,4.5)
+    time=inter_dist(start_time,day_counter,"CP1","JAV",time,18)
+    output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
+    day_counter+=1
+    
+    # ------------------------------------ artifical weather delay
+    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    
+    start_time=8.
+    time=inter_dist(start_time,day_counter,"JAV","DY2",time,0.6)
+    time=inter_dist(start_time,day_counter,"DY2","SDM",time,4.5)
+    time=inter_dist(start_time,day_counter,"SDM","UAK",time,18)
+    output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
+    day_counter+=1
+    
+    start_time=8.
+    time=inter_dist(start_time,day_counter,"UAK","GOH",time,0.6)
+    output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
+    day_counter+=1
+    
+    start_time=8.
+    time=inter_dist(start_time,day_counter,"GOH","NSE",time,4.5)
+    time=inter_dist(start_time,day_counter,"NSE","KUS",time,18)
+    output_kml(campaign,day_counter,"GOH","NSE","KUS","",orange)
+    day_counter+=1
 
-start_time=8.
-day_start(day_counter,start_time)
-start_time=inter_dist("JAV","DY2",start_time,0.6)
-start_time=inter_dist("DY2","SDM",start_time,4.5)
-start_time=inter_dist("SDM","UAK",start_time,18)
-output_kml(day_counter,"JAV","DY2","SDM","UAK",black)
-day_counter+=1
 
-start_time=8.
-day_start(day_counter,start_time)
-start_time=inter_dist("UAK","GOH",start_time,0.6)
-output_kml(day_counter,"UAK","GOH","","",blueviolet)
-day_counter+=1
+# ------------------------------------------------ end define plan
 
-start_time=8.
-day_start(day_counter,start_time)
-start_time=inter_dist("GOH","NSE",start_time,4.5)
-start_time=inter_dist("NSE","KUS",start_time,18)
-output_kml(day_counter,"GOH","NSE","KUS","",orange)
-day_counter+=1
-
-# -------------------------------------- end set plan
+# close output file
 out_concept.close()
-os.system("cat "+ofile)
+os.system("cat "+ofile+".csv")
 
+# write to csv
+df2=pd.read_csv(ofile+".csv")
+# df=df.reset_index(drop=True, inplace=True)
+
+# write to Excel
+df2.to_excel(ofile+".xlsx", index=False)
