@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="4583">
+        <Style id="4586">
+            <IconStyle id="4588">
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+                <heading>0</heading>
+                <Icon id="4589">
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+            <LabelStyle id="4587">
+                <color>ffff0000</color>
+                <colorMode>normal</colorMode>
+                <scale>1.5</scale>
+            </LabelStyle>
+        </Style>
+        <Placemark id="4585">
+            <name>QAS_M</name>
+            <Camera>
+                <longitude>-46.8332</longitude>
+                <latitude>61.0995</latitude>
+                <altitude>400000.0</altitude>
+                <tilt>0</tilt>
+            </Camera>
+            <styleUrl>#4586</styleUrl>
+            <Point id="4584">
+                <coordinates>-46.8332,61.0995,0.0</coordinates>
+                <altitudeMode>relativeToGround</altitudeMode>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>

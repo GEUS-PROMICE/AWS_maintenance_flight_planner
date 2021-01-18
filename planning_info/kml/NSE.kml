@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="3863">
+        <Style id="3866">
+            <IconStyle id="3868">
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+                <heading>0</heading>
+                <Icon id="3869">
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+            <LabelStyle id="3867">
+                <color>ffffff00</color>
+                <colorMode>normal</colorMode>
+                <scale>1.5</scale>
+            </LabelStyle>
+        </Style>
+        <Placemark id="3865">
+            <name>NASA-SE</name>
+            <Camera>
+                <longitude>-42.5002</longitude>
+                <latitude>66.4797</latitude>
+                <altitude>400000.0</altitude>
+                <tilt>0</tilt>
+            </Camera>
+            <styleUrl>#3866</styleUrl>
+            <Point id="3864">
+                <coordinates>-42.5002,66.4797,2425</coordinates>
+                <altitudeMode>relativeToGround</altitudeMode>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>
