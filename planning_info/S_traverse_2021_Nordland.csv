@@ -1,4 +1,4 @@
-date,day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),arrival time (local time),stoppage time (H),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
+date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),arrival time (local time),stoppage time (H),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
 2021-06-16,Wednesday,1,8.5,AEY,KUS,0,0,473,4.0,12.5,1,65.6547,-18.0757,65.5745,-37.1349,Akureyri,Kulusuk,130,transit to Greenland. bring any cargo from Iceland?
 2021-06-16,Wednesday,1,8.5,KUS,GOH,0,0,380,3.3,16.9,end of flying,65.5745,-37.1349,64.1917,-51.6742,Kulusuk,Nuuk,130,transit to Greenland. bring any cargo from Iceland?
 ,,,,,,,,total fly time no taxi or circling,6.6
