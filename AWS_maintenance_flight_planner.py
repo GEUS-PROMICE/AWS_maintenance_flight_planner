@@ -5,6 +5,8 @@ Created on 2021 01 16
 
 user inserts flight plan data below, start time, stop time, airport codes of starting and ending locations
 
+code depends on inputs (airport coordinates, names) that are output from positions_combine_PROMICE_GCN_Airports.py
+
 outputs:
     .csv and Excel versions
     kml Google Earth lines between places
@@ -132,21 +134,25 @@ burlywood = 'ff87b8de'
 cadetblue = 'ffa09e5f'
 
 # ------------------------------------------------ start function to output ASCII text lines to be read into dataframe
-def inter_dist(message,date,start_time,day_counter,A,B,time,stop_time,cargo_mass,N_PAX):
+def inter_dist(message,date,start_time,day_counter,A,B,time,stop_time,cargo_mass,N_PAX,fly_time):
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     coords_1 = (float(df.lat[df.id==A]),float(df.lon[df.id==A]))
     coords_2 = (float(df.lat[df.id==B]),float(df.lon[df.id==B]))
     airspeed=130 # kts Twin Otter
-    airspeed=105 # kts Helicopter
+    # airspeed=105 # kts Helicopter
     d=geopy.distance.distance(coords_1, coords_2).nm
     t=d/airspeed
+    fly_time+=t # total fly time before taxi time
+    t+=2*12/60 # circling, taxi at start and end
     time+=t
     BB=str(df.name[df.id==B].values)[2:-2]
     AA=str(df.name[df.id==A].values)[2:-2]
     # print(BB)
     # print(df.name[df.id==A].aslist)
     # ,">",df.name[df.id==B])
+    stop_time_string=str(stop_time)
+    if stop_time==18:stop_time_string="end of flying"
     out_string=str(date)+","\
         +str(day_name)+","\
         +str(day_counter)+","\
@@ -154,8 +160,8 @@ def inter_dist(message,date,start_time,day_counter,A,B,time,stop_time,cargo_mass
         ","+A+","+B+","\
         +str(cargo_mass)+","\
         +str(N_PAX)+","\
-        "{:.0f}".format(d)+",{:.2f}".format(t)+","+ \
-          "{:.1f}".format(time)+","+str(stop_time)+","+\
+        "{:.0f}".format(d)+",{:.1f}".format(t)+","+ \
+          "{:.1f}".format(time)+","+stop_time_string+","+\
           "{:.4f}".format(coords_1[0])+",{:.4f}".format(coords_1[1])+","+\
           "{:.4f}".format(coords_2[0])+",{:.4f}".format(coords_2[1])+","+\
               AA+","+BB+","+\
@@ -166,194 +172,293 @@ def inter_dist(message,date,start_time,day_counter,A,B,time,stop_time,cargo_mass
     out_concept.write(out_string+"\n")
     time+=stop_time
 
-    return time
+    return time,fly_time
 # ------------------------------------------------ end function to output ASCII text lines to be read into dataframe
 
-campaign="Campaign_S_traverse_2021_Nordland"
-# campaign="Campaign_NW_traverse_2021_Borek"
-campaign="Swiss_Camp_2021"
+tools=150 #kg
+campaign="S_chartering_2021_Nordland"
+# campaign="NW_chartering_2021_Borek"
+# campaign="Swiss_Camp_2021_July_16-23"
+campaign="NE_chartering_2021_Nordland"
 
 ofile="./planning_info/"+campaign
 out_concept=open(ofile+".csv","w+")
-out_concept.write('date,day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly time (h),arrival time (local time),stoppage time (H),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work\n')
+out_concept.write('date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),arrival time (local time),stoppage time (H),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work\n')
 
-# ------------------------------------------------ start define plan
+# ------------------------------------------------ start defining plans
+
+if campaign=="NE_chartering_2021_Nordland":
+
+
+    # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 6, 16)
+    cargo_mass=0 # for transit from Iceland
+    N_PAX=0 # for transit from Iceland
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="transit to Greenland. bring any cargo from Iceland?"
+    day_counter=1
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"AEY","KUS",time,1,cargo_mass,N_PAX,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"KUS","GOH",time,18,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"AEY","KUS","GOH","",red)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------ artifical weather delay
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------------------ new fly day
+    start_time=8.25 ; time=start_time ; fly_time=0
+    cargo_mass=4*150+150 # 3 new AWS plus tools
+    N_PAX=3
+    message="transit to SFJ with 4 x AWS. leave 3 in SFJ at refueling"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"GOH","SFJ",time,1,cargo_mass,N_PAX,fly_time)
+    cargo_mass=1*150+tools # 3 new AWS plus tools
+    message="first AWS maintenance. new AWS installation at DY2"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SFJ","DY2",time,4.5,cargo_mass,N_PAX,fly_time)
+    message="return to SFJ to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------------------ new fly day
+    start_time=8.5 ; time=start_time ; fly_time=0
+    cargo_mass=1*150+tools
+    message="AWS maintenance using crane at SDL"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SFJ","SDL",time,0.7,cargo_mass,N_PAX,fly_time)
+    message="refuel at Raven/DYE-2 on return"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SDL","DY2",time,4.5,cargo_mass-50,N_PAX,fly_time)
+    message="return to SFJ to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------------------ new fly day
+    start_time=8.5 ; time=start_time ; fly_time=0
+    cargo_mass=1*150+tools
+    message="new AWS install at CP1. bring back whatever we can"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SFJ","CP1",time,4.5,cargo_mass-120,N_PAX,fly_time)
+    message="return to JAV to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------ artifical weather delay
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,relax\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------------------ new fly day
+    start_time=8. ; time=start_time ; fly_time=0
+    cargo_mass=1*150+tools
+    message="long day. refuel at Raven/DYE-2. proceed to SDM"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","DY2",time,0.6,cargo_mass,N_PAX,fly_time)
+    message="to SDM. 2950 m ASL"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"DY2","SDM",time,4.5,cargo_mass-150,N_PAX,fly_time)
+    message="to UAK to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------------------ new fly day
+    start_time=8. ; time=start_time ; fly_time=0
+    message="transit"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    
+    # ------------------------------------------------ new fly day
+    start_time=8. ; time=start_time ; fly_time=0
+    cargo_mass=1*150+tools
+    message="new AWS install at NSE"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"GOH","NSE",time,4.5,cargo_mass,N_PAX,fly_time)
+    message="transit to KUS"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NSE","KUS",time,18,cargo_mass-150,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"GOH","NSE","KUS","",orange)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------------------ new fly day
+    start_time=8. ; time=start_time ; fly_time=0
+    cargo_mass=0*150+tools
+    message="transit to AEY"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"KUS","AEY",time,4.5,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+# Day 2: AEY - HUB
+# Day 3: HUB – Summit – EGRIP – HUB
+# Day 4: HUB – Summit – NASA-U – Summit  - HUB
+# Day 5: HUB – Summit – NASA-E – HUB
+# Day 6 – 8: weather
+# Where HUB is either CNP or DAN/ZAC
+
+    day_counter=1
+    # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 8, 1)
+    cargo_mass=150
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="transit"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
+    message="return empty to JAV"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
 
 
 if campaign=="Swiss_Camp_2021_July_16-23":
 
-    cargo_mass=150
-    date = datetime.date(2021, 7, 16)
     day_counter=1
-    start_time=8.5 ; time=start_time
+    # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 7, 16)
+    cargo_mass=150
+    start_time=8.5 ; time=start_time ; fly_time=0
     message="put in full load to Swiss Camp. first arrival after 1 year. PAX names: Derek Houtz. Jason Box. Simon Steffen. nn1"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,0,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
+    message="return empty to JAV"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
-    start_time=13 ; time=start_time
+    # ------------------------------------------------ new fly day
+    start_time=13 ; time=start_time ; fly_time=0
     message="put in with 1 PAX remaining gear"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
+    # ------------------------------------------------ new fly day
     date = datetime.date(2021, 7, 20)
     day_counter=1
-    start_time=8.25 ; time=start_time
+    start_time=8.25 ; time=start_time ; fly_time=0
     message="flight 1 of full day charter. come in with tents for memorial event. set up sling operation. take out a ful load of stuff back to JAV in cabin"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     message="return with sling or full cabin"
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     message="flight 2 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     message="return with sling or full cabin"
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     message="flight 3 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     message="return with sling or full cabin"
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     message="flight 4 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     message="return with sling or full cabin"
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
+    # ------------------------------------------------ new fly day
     day_counter+=1 ; date+=datetime.timedelta(days=1)
-
-    start_time=8.5 ; time=start_time
+    start_time=8.5 ; time=start_time ; fly_time=0
     message="bring one PAX in. Paolo Solari Bozzi. Marina Aliverti. and others? do memorial event with visitors this day?"
     N_PAX=2
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0)
-
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
-    start_time=8.5 ; time=start_time
+    # ------------------------------------------------ new fly day
+    start_time=8.5 ; time=start_time ; fly_time=0
     message="bring 5 more PAX in for memorial event. Names as yet underfined. 2 come back after 1.5 h ground stop. leaving 10 on camp."
     N_PAX=5
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0)
-
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
-    start_time=8.5 ; time=start_time
+    # ------------------------------------------------ new fly day
+    start_time=8.5 ; time=start_time ; fly_time=0
     message="Pull all out"
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5,fly_time)
 
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3,fly_time)
 
-    time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0)
-    time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
         
-if campaign=="Campaign_NW_traverse_2021_Borek":
 
+
+if campaign=="NW_chartering_2021_Borek":
+
+#     Proposed NW Loop:
+
+# Day 1*: YRB-THU-QAN (move people and cargo to QAN airport)
+# Day 2: QAN-Petermann-QAN (1 new AWS)
+# Day 3: QAN-NEEM-Humboldt-QAN (1 new AWS, 1 existing AWS)
+
+# Day 4: QAN-CEN-QAN (1 existing AWS, 3 other towers)
+
+# Day 5: QAN-THU-YRB (return people and cargo to THU base)
+
+# Day 6: Weather
+
+# Day 7: Weather
+
+# Day 8: Weather
+
+ 
     df.name[df.id=="POL"]
     day_counter=1
     start_time=8.5 ; time=start_time
-    time=inter_dist(message,date,start_time,day_counter,"POL","THU",time,1)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"POL","THU",time,1)
     output_kml(campaign,day_counter,"POL","THU","","",red)
     day_counter+=1
     
     # ------------------------------------ artifical weather delay
-    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
+    out_concept.write(str(day_counter)+'. weather delay\n') ; day_counter+=1
     
     # 2 AWS on board; DY2 and CP1
     # add cargo mass = 150 kg / AWS
     # tools 50 kg
     # PAX = 3
     start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"THU","CEN",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"CEN","THU",time,18)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","CEN",time,4.5)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"CEN","THU",time,18)
     output_kml(campaign,day_counter,"THU","CEN","THU","",red)
     day_counter+=1
     
     start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"THU","HUM",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"HUM","THU",time,18)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","HUM",time,4.5)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"HUM","THU",time,18)
     output_kml(campaign,day_counter,"THU","HUM","THU","",aqua)
     day_counter+=1
     
     start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"THU","PET",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"PET","THU",time,18)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","PET",time,4.5)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"PET","THU",time,18)
     output_kml(campaign,day_counter,"THU","PET","THU","",orange)
     day_counter+=1
     
     
     start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"THU","NEM",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"NEM","THU",time,18)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","NEM",time,4.5)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NEM","THU",time,18)
     output_kml(campaign,day_counter,"THU","NEM","THU","",blue)
     day_counter+=1
     
     start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"THU","POL",time,4.5)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","POL",time,4.5)
     output_kml(campaign,day_counter,"THU","POL","","",black)
     day_counter+=1
 
-
-if campaign=="Campaign_S_traverse_2021_Nordland":
-
-    df.name[df.id=="AEY"]
-    day_counter=1
-    start_time=8.5 ; time=start_time
-    time=inter_dist(message,date,start_time,day_counter,"AEY","KUS",time,1)
-    time=inter_dist(message,date,start_time,day_counter,"KUS","GOH",time,18)
-    output_kml(campaign,day_counter,"AEY","KUS","GOH","",red)
-    day_counter+=1
-    
-    # ------------------------------------ artifical weather delay
-    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
-    
-    # 2 AWS on board; DY2 and CP1
-    # add cargo mass = 150 kg / AWS
-    # tools 50 kg
-    # PAX = 3
-    start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"GOH","DY2",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"DY2","SFJ",time,18)
-    output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
-    day_counter+=1
-    
-    start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"SFJ","SDL",time,0.7)
-    time=inter_dist(message,date,start_time,day_counter,"SDL","DY2",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"DY2","SFJ",time,18)
-    output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
-    day_counter+=1
-    
-    start_time=8.5
-    time=inter_dist(message,date,start_time,day_counter,"SFJ","CP1",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"CP1","JAV",time,18)
-    output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
-    day_counter+=1
-    
-    # ------------------------------------ artifical weather delay
-    out_concept.write(str(day_counter)+', weather delay\n') ; day_counter+=1
-    
-    start_time=8.
-    time=inter_dist(message,date,start_time,day_counter,"JAV","DY2",time,0.6)
-    time=inter_dist(message,date,start_time,day_counter,"DY2","SDM",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"SDM","UAK",time,18)
-    output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
-    day_counter+=1
-    
-    start_time=8.
-    time=inter_dist(message,date,start_time,day_counter,"UAK","GOH",time,0.6)
-    output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
-    day_counter+=1
-    
-    start_time=8.
-    time=inter_dist(message,date,start_time,day_counter,"GOH","NSE",time,4.5)
-    time=inter_dist(message,date,start_time,day_counter,"NSE","KUS",time,18)
-    output_kml(campaign,day_counter,"GOH","NSE","KUS","",orange)
-    day_counter+=1
 
 
 # ------------------------------------------------ end define plan
@@ -364,6 +469,7 @@ os.system("cat "+ofile+".csv")
 
 # write to csv
 df2=pd.read_csv(ofile+".csv")
+# df2[stoppage time (H)]=18
 # df=df.reset_index(drop=True, inplace=True)
 
 # write to Excel
