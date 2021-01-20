@@ -7,9 +7,10 @@ in AWS_maintenance_flight_planner.py the user inserts flight plan data including
 - freight not including PAX weights
 - work per flight leg including that on the ground
 
--.csv and Excel versions of a flight plan table that includes
 
-csv outputs:
+**flight plan outputs**
+
+csv and Excel table that includes:
 - calendar dates
 - number of flight days from start to end of charter
 - distances between 'airports'
@@ -20,7 +21,9 @@ csv outputs:
 - activities for each flight leg
 - adding taxi and circling time
 - total fly time not including taxi and circling
-    kml Google Earth lines between places
+
+    
+**kml Google Earth** lines between places
 
 ![](images/example_map.jpg)
 
