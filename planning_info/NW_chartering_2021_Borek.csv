@@ -1,0 +1,20 @@
+date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
+2021-08-20,Friday,1,8.5,YRB,THU,0,0,405,3.3,11.8,1,74.7184,-94.9842,76.5333,-68.6999,Resolute Bay,Thule Air Base,140,transit to Greenland.
+2021-08-20,Friday,1,8.5,THU,QAN,500,3,58,0.8,13.6,end of flying,76.5333,-68.6999,77.4855,-69.3750,Thule Air Base,Qaanaaq,140,move people and cargo to QAN airport
+,,,,,,,,total fly time no taxi or circling,3.3
+2021-08-21,Saturday,2,8.25,QAN,PET,350,3,205,1.9,10.1,0.7,77.4855,-69.3750,80.0971,-58.1384,Qaanaaq,Petermann ELA,140,new AWS install at Petermann ELA
+2021-08-21,Saturday,2,8.25,PET,QAN,300,3,205,1.9,12.7,end of flying,80.0971,-58.1384,77.4855,-69.3750,Petermann ELA,Qaanaaq,140,return to QAN to overnight
+,,,,,,,,total fly time no taxi or circling,2.9
+2021-08-22,Sunday,3,8.0,QAN,NEM,300,3,241,2.1,10.1,4.0,77.4855,-69.3750,77.5022,-50.8744,Qaanaaq,NEEM,140,long day. new AWS install at Neem and visit Humboldt after NEEM landing and ground stop. no crane?
+2021-08-22,Sunday,3,8.0,NEM,HUM,200,3,97,1.1,15.2,2.0,77.5022,-50.8744,78.5266,-56.8305,NEEM,Humboldt,140,new AWS install at Neem. recover some Neem kit? 4.5 h ground stop. after this and visit Humboldt after NEEM landing and 
+2021-08-22,Sunday,3,8.0,HUM,QAN,150,3,169,1.6,18.8,end of flying,78.5266,-56.8305,77.4855,-69.3750,Humboldt,Qaanaaq,140,return to QAAN to overnight
+,,,,,,,,total fly time no taxi or circling,3.6
+2021-08-23,Monday,4,8.25,QAN,CEN,300,3,113,1.2,9.5,5,77.4855,-69.3750,77.1300,-61.0300,Qaanaaq,CEN,140,service 1 existing AWS. 3 other towers. no crane?
+2021-08-23,Monday,4,8.25,CEN,QAN,250,3,113,1.2,15.7,end of flying,77.1300,-61.0300,77.4855,-69.3750,CEN,Qaanaaq,140,return to QAN to overnight
+,,,,,,,,total fly time no taxi or circling,1.6
+2021-08-24,Tuesday,5,8.25,QAN,THU,350,3,58,0.8,9.1,1,77.4855,-69.3750,76.5333,-68.6999,Qaanaaq,Thule Air Base,140,return PAX to THU then return plane to YRB
+2021-08-24,Tuesday,5,8.25,THU,YRB,300,0,405,3.3,13.4,end of flying,76.5333,-68.6999,74.7184,-94.9842,Thule Air Base,Resolute Bay,140,return to YRB with no PAX
+,,,,,,,,total fly time no taxi or circling,3.3
+6. weather delay
+7. weather delay
+8. weather delay
