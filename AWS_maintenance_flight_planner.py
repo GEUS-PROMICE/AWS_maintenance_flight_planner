@@ -188,10 +188,11 @@ def weather_day(day_counter,date):
 campaign="S_chartering_2021_Nordland"
 campaign="NW_chartering_2021_Borek"
 # campaign="Swiss_Camp_2021_July_16-23"
-# campaign="NE_2021_Aug_DD_Nordland"
+campaign="NE_2021_Aug_DD_Nordland"
+campaign="NE_2021_Aug_DD_Borek"
 
 # ------------------------------------------------ parameters
-tools_mass=150 # kg
+tools_mass=100 # kg
 new_AWS_mass=150 # kg
 crane_mass=50 # kg
 
@@ -310,26 +311,144 @@ if campaign=="S_chartering_2021_Nordland":
     time,fly_time=inter_dist(message,date,start_time,day_counter,"KUS","AEY",time,4.5,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
-if campaign=="NE_2021_Aug_DD_Nordland":
-# Day 2: AEY - HUB
-# Day 3: HUB – Summit – EGRIP – HUB
-# Day 4: HUB – Summit – NASA-U – Summit  - HUB
-# Day 5: HUB – Summit – NASA-E – HUB
-# Day 6 – 8: weather
+if campaign=="NE_2021_Aug_DD_Borek":
 # Where HUB is either CNP or DAN/ZAC
 
     day_counter=1
     # ------------------------------------------------ new fly day
-    date = datetime.date(2021, 8, 1)
-    cargo_mass=150
-    start_time=8.5 ; time=start_time ; fly_time=0
-    message="transit"
-    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
-    message="return empty to JAV"
-    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
+    date = datetime.date(2021, 8, 7)
+    cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
+    start_time=8.25 ; time=start_time ; fly_time=0
+    N_PAX=0 # for transit from Iceland
+    message="transit from Iqaluit with no cargo"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"IKA","SFJ",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
+    output_kml(campaign,day_counter,"IKA","SFJ","","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
+    start_time=8. ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="refuel at Summit. basic maintanance at Summit"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SFJ","SUM",time,4,cargo_mass,N_PAX,fly_time)
+    message="EGP new AWS install. Twin Otter overnights"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"SFJ","SUM","EGP","",blue)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------ artifical weather delay
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    day_counter,date=weather_day(day_counter,date)
+    
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=9. ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="maintanance at Summit"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
+    message="return to EGP for overnight 2"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"EGP","NAE","EGP","",orange)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=9. ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="crane maintanance at NASA-U"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"EGP","NAU",time,4.,cargo_mass,N_PAX,fly_time)
+    message="return to coast. Upernavik"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NAU","JJU",time,18.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"EGP","NAU","JJU","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=8.5 ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="return toward Iceland"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JJU","IKA",time,18.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"JJU","IKA","","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+if campaign=="NE_2021_Aug_DD_Nordland":
+# Where HUB is either CNP or DAN/ZAC
+
+    day_counter=1
+    # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 8, 7)
+    cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
+    start_time=8.25 ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="transit from Iceland with some cargo"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"AEY","CNP",time,18,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"AEY","CNP","","",red)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
+    start_time=8. ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="refuel at Summit. basic maintanance at Summit"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"CNP","SUM",time,4,cargo_mass,N_PAX,fly_time)
+    message="EGP new AWS install. Twin Otter overnights"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"CNP","SUM","EGP","",blue)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=9. ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="maintanance at Summit"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
+    message="return to EGP for overnight 2"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"EGP","NAE","EGP","",orange)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=9. ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="crane maintanance at NASA-U"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"EGP","NAU",time,4.,cargo_mass,N_PAX,fly_time)
+    message="return to coast. Upernavik"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NAU","JJU",time,18.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"EGP","NAU","JJU","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=8.5 ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="return toward Iceland via Nuuk"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JJU","GOH",time,18.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"JJU","GOH","","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------------------ new fly day
+    cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
+    start_time=8.5 ; time=start_time ; fly_time=0
+    N_PAX=3 # for transit from Iceland
+    message="return toward Iceland"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"GOH","AEY",time,18.,cargo_mass,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"GOH","AEY","","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     
 if campaign=="Swiss_Camp_2021_July_16-23":
 
@@ -411,7 +530,108 @@ if campaign=="Swiss_Camp_2021_July_16-23":
     time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-        
+
+if campaign=="NW_chartering_2021_Nordland":
+#     Proposed NW Loop:
+# Day 1: AES-THU-QAN (move people and cargo to QAN airport)
+# Day 2: QAN-Petermann-QAN (1 new AWS)
+# Day 3: QAN-NEEM-Humboldt-QAN (1 new AWS, 1 existing AWS)
+# Day 4: QAN-CEN-QAN (1 existing AWS, 3 other towers)
+# Day 5: QAN-THU-YRB (return people and cargo to THU base)
+# Day 6: Weather
+# Day 7: Weather
+# Day 8: Weather
+
+     # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 8, 19)
+    cargo_mass=0 # for transit from Iceland
+    N_PAX=0 # for transit from Iceland
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="transit to W Greenland."
+    day_counter=1
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"AEY","SFJ",time,18,cargo_mass,N_PAX,fly_time)
+    
+     # ------------------------------------------------ new fly day
+    message="transit to N Greenland."
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"AEY","SFJ",time,18,cargo_mass,N_PAX,fly_time)
+    
+    message="move people and cargo to QAN airport"
+    N_PAX=3 # for transit to THU
+    cargo_mass=2*new_AWS_mass+tools_mass+crane_mass
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","QAN",time,18,cargo_mass,3,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"YRB","THU","QAN","",red)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+       
+   # ------------------------------------------------ new fly day
+    start_time=8.25 ; time=start_time ; fly_time=0
+    cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
+    message="new AWS install at Petermann ELA"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"QAN","PET",time,0.7,cargo_mass,N_PAX,fly_time)
+    message="return to QAN to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"QAN","PET","QAN","",blue)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+   # ------------------------------------------------ new fly day
+    start_time=8. ; time=start_time ; fly_time=0
+    cargo_mass=1*new_AWS_mass+tools_mass
+    message="long day. new AWS install at Neem and visit Humboldt after NEEM landing and ground stop. no crane?"
+    ground_stop_time=4.
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"QAN","NEM",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    message="new AWS install at Neem. recover some Neem kit? 4.5 h ground stop. after this and visit Humboldt after NEEM landing and "
+    ground_stop_time=2.
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"NEM","HUM",time,ground_stop_time,cargo_mass-100,N_PAX,fly_time)
+    message="return to QAAN to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"QAN","NEM","HUM","QAN",orange)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+   # ------------------------------------------------ new fly day
+    start_time=8.25 ; time=start_time ; fly_time=0
+    cargo_mass=1*new_AWS_mass+tools_mass
+    message="service 1 existing AWS. 3 other towers. no crane?"
+    ground_stop_time=5
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"QAN","CEN",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    message="return to QAN to overnight"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"QAN","CEN","QAN","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+   # ------------------------------------------------ new fly day
+    start_time=8.25 ; time=start_time ; fly_time=0
+    cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
+    message="return PAX to THU then return plane to YRB"
+    ground_stop_time=1
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"QAN","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    message="return to YRB with no PAX"
+    N_PAX=0 # return to YRB with no pax
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"THU","YRB",time,18,cargo_mass-50,N_PAX,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"QAN","THU","YRB","",black)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------ artifical weather delay
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    day_counter,date=weather_day(day_counter,date)
+
+    # ------------------------------------ artifical weather delay
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    day_counter,date=weather_day(day_counter,date)
+
+    # ------------------------------------ artifical weather delay
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    day_counter,date=weather_day(day_counter,date)
+
 
 if campaign=="NW_chartering_2021_Borek":
 
@@ -427,7 +647,7 @@ if campaign=="NW_chartering_2021_Borek":
 # Day 8: Weather
 
      # ------------------------------------------------ new fly day
-    date = datetime.date(2021, 8, 1)
+    date = datetime.date(2021, 8, 20)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
     start_time=8.5 ; time=start_time ; fly_time=0
@@ -456,11 +676,11 @@ if campaign=="NW_chartering_2021_Borek":
    # ------------------------------------------------ new fly day
     start_time=8. ; time=start_time ; fly_time=0
     cargo_mass=1*new_AWS_mass+tools_mass
-    message="long day. new AWS install at Neem and visit Humboldt after NEEM landing and 4.5 h ground stop. no crane?"
-    ground_stop_time=4.5
+    message="long day. new AWS install at Neem and visit Humboldt after NEEM landing and ground stop. no crane?"
+    ground_stop_time=4.
     time,fly_time=inter_dist(message,date,start_time,day_counter,"QAN","NEM",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     message="new AWS install at Neem. recover some Neem kit? 4.5 h ground stop. after this and visit Humboldt after NEEM landing and "
-    ground_stop_time=4.5
+    ground_stop_time=2.
     time,fly_time=inter_dist(message,date,start_time,day_counter,"NEM","HUM",time,ground_stop_time,cargo_mass-100,N_PAX,fly_time)
     message="return to QAAN to overnight"
     time,fly_time=inter_dist(message,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
