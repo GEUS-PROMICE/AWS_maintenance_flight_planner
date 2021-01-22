@@ -186,7 +186,7 @@ def weather_day(day_counter,date):
 
 # ------------------------------------------------ campaigns
 campaign="S_chartering_2021_Nordland"
-# campaign="S_chartering_2021_Borek"
+campaign="S_chartering_2021_Borek"
 # campaign="NW_chartering_2021_Borek"
 # campaign="NW_chartering_2021_Nordland"
 # campaign="Swiss_Camp_2021_July_16-23"
