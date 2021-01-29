@@ -189,9 +189,9 @@ campaign="S_chartering_2021_Nordland"
 campaign="S_chartering_2021_Borek"
 # campaign="NW_chartering_2021_Borek"
 # campaign="NW_chartering_2021_Nordland"
-# campaign="Swiss_Camp_2021_July_16-23"
-# campaign="NE_2021_Aug_DD_Nordland"
-# campaign="NE_2021_Aug_DD_Borek"
+campaign="Swiss_Camp_2021_July_23-30"
+# campaign="NE_chartering_2021_Aug_Nordland"
+# campaign="NE_chartering_2021_Aug_Borek"
 
 # ------------------------------------------------ parameters
 tools_mass=100 # kg
@@ -420,7 +420,7 @@ if campaign=="S_chartering_2021_Nordland":
     time,fly_time=inter_dist(message,date,start_time,day_counter,"KUS","AEY",time,4.5,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
-if campaign=="NE_2021_Aug_DD_Borek":
+if campaign=="NE_chartering_2021_Aug_Borek":
 # Where HUB is either CNP or DAN/ZAC
 
     day_counter=1
@@ -457,7 +457,7 @@ if campaign=="NE_2021_Aug_DD_Borek":
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=9. ; time=start_time ; fly_time=0
     N_PAX=3 # for transit from Iceland
-    message="maintanance at Summit"
+    message="maintanance at NASA-E"
     time,fly_time=inter_dist(message,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
     message="return to EGP for overnight 2"
     time,fly_time=inter_dist(message,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
@@ -482,13 +482,13 @@ if campaign=="NE_2021_Aug_DD_Borek":
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=8.5 ; time=start_time ; fly_time=0
     N_PAX=3 # for transit from Iceland
-    message="return toward Iceland"
+    message="return to Canada"
     time,fly_time=inter_dist(message,date,start_time,day_counter,"JJU","IKA",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JJU","IKA","","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
-if campaign=="NE_2021_Aug_DD_Nordland":
+if campaign=="NE_chartering_2021_Aug_Nordland":
 # Where HUB is either CNP or DAN/ZAC
 
     day_counter=1
@@ -558,7 +558,87 @@ if campaign=="NE_2021_Aug_DD_Nordland":
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"GOH","AEY","","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+if campaign=="Swiss_Camp_2021_July_23-30":
+
+    day_counter=1
+    # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 7, 23)
+    cargo_mass=150
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="put in full load to Swiss Camp. first arrival after 1 year. PAX names: Derek Houtz. Jason Box. Simon Steffen. nn1"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
+    message="return empty to JAV"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------------------ new fly day
+    start_time=13 ; time=start_time ; fly_time=0
+    message="put in with 1 PAX remaining gear"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     
+    # ------------------------------------------------ new fly day
+    date = datetime.date(2021, 7, 27)
+    day_counter=1
+    start_time=8.25 ; time=start_time ; fly_time=0
+    message="flight 1 of full day charter. come in with tents for memorial event. set up sling operation. take out a ful load of stuff back to JAV in cabin"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    message="return with sling or full cabin"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+
+    message="flight 2 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    message="return with sling or full cabin"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+
+    message="flight 3 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    message="return with sling or full cabin"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+
+    message="flight 4 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    message="return with sling or full cabin"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+
+    # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="bring one PAX in. Paolo Solari Bozzi. Marina Aliverti. and others? do memorial event with visitors this day?"
+    N_PAX=2
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------------------ new fly day
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="bring 5 more PAX in for memorial event. Names as yet underfined. 2 come back after 1.5 h ground stop. leaving 10 on camp."
+    N_PAX=5
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+
+    # ------------------------------------------------ new fly day
+    start_time=8.5 ; time=start_time ; fly_time=0
+    message="Pull all out"
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5,fly_time)
+
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3,fly_time)
+
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time=inter_dist(message,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
+    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 if campaign=="Swiss_Camp_2021_July_16-23":
 
     day_counter=1
