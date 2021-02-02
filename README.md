@@ -17,7 +17,9 @@ csv and Excel summary table that includes:
 - fly times between 'airports' (without taxi and circling)
 - day of week, e.g. Monday, Tuesday
 - freight
-- N PAX
+- cumulative fuel usage
+- cumulative cost fuel used
+- remaining fuel
 - activities for each flight leg
 - adding taxi and circling time
 - total fly time not including taxi and circling

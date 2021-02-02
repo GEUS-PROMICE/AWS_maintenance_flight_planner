@@ -22,9 +22,9 @@ import datetime
 from datetime import date
 import calendar
 
-global cost_per_li,airspeed
+global cost_per_li,airspeed,fuel_remaining
 cost_per_li=10.14 #DKK per liter
-
+fuel_remaining=1400#liters https://www.vikingair.com/twin-otter-information/technical-description
 airspeed=140 # kts Twin Otter
 # airspeed=105 # kts Helicopter
 
@@ -140,7 +140,7 @@ burlywood = 'ff87b8de'
 cadetblue = 'ffa09e5f'
 
 # ------------------------------------------------ start function to output ASCII text lines to be read into dataframe
-def inter_dist(fuel_use,work,date,start_time,day_counter,A,B,time,stop_time,cargo_mass,N_PAX,fly_time):
+def inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,A,B,time,stop_time,cargo_mass,N_PAX,fly_time):
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     coords_1 = (float(df.lat[df.id==A]),float(df.lon[df.id==A]))
@@ -152,6 +152,7 @@ def inter_dist(fuel_use,work,date,start_time,day_counter,A,B,time,stop_time,carg
     t+=2*12/60 # circling, taxi at start and end
     time+=t
     fuel_use+=fuel_use_rate*fly_time
+    fuel_remaining-=fuel_use_rate*d/airspeed
     fuel_cost=fuel_use*cost_per_li
     BB=str(df.name[df.id==B].values)[2:-2]
     AA=str(df.name[df.id==A].values)[2:-2]
@@ -171,6 +172,7 @@ def inter_dist(fuel_use,work,date,start_time,day_counter,A,B,time,stop_time,carg
         "{:.1f}".format(t)+","+\
         "{:.0f}".format(fuel_use)+","+\
         "{:.0f}".format(fuel_cost/1000)+","+\
+        "{:.0f}".format(fuel_remaining)+","+\
           "{:.1f}".format(time)+","+stop_time_string+","+\
           "{:.4f}".format(coords_1[0])+",{:.4f}".format(coords_1[1])+","+\
           "{:.4f}".format(coords_2[0])+",{:.4f}".format(coords_2[1])+","+\
@@ -182,7 +184,7 @@ def inter_dist(fuel_use,work,date,start_time,day_counter,A,B,time,stop_time,carg
     out_concept.write(out_string+"\n")
     time+=stop_time
 
-    return time,fly_time,fuel_use
+    return time,fly_time,fuel_use,fuel_remaining
 # ------------------------------------------------ end function to output ASCII text lines to be read into dataframe
 
 # ------------------------------------------------ start function
@@ -212,7 +214,7 @@ crane_mass=50 # kg
 # summary table
 ofile="./planning_info/"+campaign
 out_concept=open(ofile+".csv","w+")
-out_concept.write('date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),fuel consumption litres,fuel consumption cost kDKK,arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work\n')
+out_concept.write('date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),fuel consumption litres,fuel consumption cost kDKK,fuel_remaining(liters),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work\n')
 
 # fuel
 ofile_daily="./planning_info/"+campaign+"_daily_totals"
@@ -229,10 +231,11 @@ if campaign=="S_chartering_2021_Borek":
     date = datetime.date(2021, 6, 16)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit to Greenland."
     day_counter=1
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"IKA","GOH",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"IKA","GOH",time,18,cargo_mass,N_PAX,fly_time)
+    fuel_remaining=1400
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"IKA","GOH","","",red)
@@ -245,42 +248,46 @@ if campaign=="S_chartering_2021_Borek":
     out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=4*new_AWS_mass+150 # 3 new AWS plus tools_mass
     N_PAX=3
     work="transit to SFJ with 4 x AWS. leave 3 in SFJ at refueling"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"GOH","SFJ",time,1,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"GOH","SFJ",time,1,cargo_mass,N_PAX,fly_time)
+    fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass # 3 new AWS plus tools_mass
-    work="first AWS maintenance. new AWS installation at DY2"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","DY2",time,4.5,cargo_mass,N_PAX,fly_time)
+    work="first AWS maintenance. new AWS installation at DY2. no refueling"
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","DY2",time,4.5,cargo_mass,N_PAX,fly_time)
+    # fuel_remaining=1400 # ??
     work="return to SFJ to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="AWS maintenance using crane at SDL"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","SDL",time,0.7,cargo_mass,N_PAX,fly_time)
-    work="refuel at Raven/DYE-2 on return"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SDL","DY2",time,4.5,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","SDL",time,0.7,cargo_mass,N_PAX,fly_time)
+    # work="don'trefuel at Raven/DYE-2 on return"
     work="return to SFJ to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SDL","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    # fuel_remaining=1400
+    work="return to SFJ to overnight"
+    # time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
-    output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
+    output_kml(campaign,day_counter,"SFJ","SDL","SFJ","",burlywood)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="new AWS install at CP1. bring back whatever we can"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","CP1",time,4.5,cargo_mass-120,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","CP1",time,4.5,cargo_mass-120,N_PAX,fly_time)
     work="return to JAV to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
@@ -292,47 +299,49 @@ if campaign=="S_chartering_2021_Borek":
     out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,relax\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
-    work="long day. refuel at Raven/DYE-2. proceed to SDM"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","DY2",time,0.6,cargo_mass,N_PAX,fly_time)
+    work="long day. bring fuel drum with. refuel 200 liters at Raven/DYE-2. proceed to SDM"
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","DY2",time,0.6,cargo_mass,N_PAX,fly_time)
+    fuel_remaining+=200
     work="to SDM. 2950 m ASL"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SDM",time,4.5,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SDM",time,4.5,cargo_mass-150,N_PAX,fly_time)
     work="to UAK to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="new AWS install at NSE"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"GOH","NSE",time,4.5,cargo_mass,N_PAX,fly_time)
-    work="transit to DY2 to refuel"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NSE","DY2",time,0.5,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"GOH","NSE",time,4.5,cargo_mass,N_PAX,fly_time)
+    work="transit to DY2 to refuel. bring fuel drum with."
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NSE","DY2",time,0.5,cargo_mass-150,N_PAX,fly_time)
+    fuel_remaining+=200
     work="transit to SFJ"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,0.5,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,0.5,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","NSE","DY2","SFJ",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=0
     work="transit back to Canada"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","IKA",time,4.5,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","IKA",time,4.5,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","IKA","","",red)
@@ -345,11 +354,11 @@ if campaign=="S_chartering_2021_Nordland":
     date = datetime.date(2021, 6, 16)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit to Greenland. bring any cargo from Iceland?"
     day_counter=1
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"AEY","KUS",time,1,cargo_mass,N_PAX,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"KUS","GOH",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"AEY","KUS",time,1,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"KUS","GOH",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"AEY","KUS","GOH","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
@@ -361,40 +370,40 @@ if campaign=="S_chartering_2021_Nordland":
     out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=4*new_AWS_mass+150 # 3 new AWS plus tools_mass
     N_PAX=3
     work="transit to SFJ with 4 x AWS. leave 3 in SFJ at refueling"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"GOH","SFJ",time,1,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"GOH","SFJ",time,1,cargo_mass,N_PAX,fly_time)
     cargo_mass=1*new_AWS_mass+tools_mass # 3 new AWS plus tools_mass
     work="first AWS maintenance. new AWS installation at DY2"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","DY2",time,4.5,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","DY2",time,4.5,cargo_mass,N_PAX,fly_time)
     work="return to SFJ to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="AWS maintenance using crane at SDL"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","SDL",time,0.7,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","SDL",time,0.7,cargo_mass,N_PAX,fly_time)
     work="refuel at Raven/DYE-2 on return"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SDL","DY2",time,4.5,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SDL","DY2",time,4.5,cargo_mass-50,N_PAX,fly_time)
     work="return to SFJ to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="new AWS install at CP1. bring back whatever we can"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","CP1",time,4.5,cargo_mass-120,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","CP1",time,4.5,cargo_mass-120,N_PAX,fly_time)
     work="return to JAV to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
@@ -406,42 +415,42 @@ if campaign=="S_chartering_2021_Nordland":
     out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,relax\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="long day. refuel at Raven/DYE-2. proceed to SDM"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","DY2",time,0.6,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","DY2",time,0.6,cargo_mass,N_PAX,fly_time)
     work="to SDM. 2950 m ASL"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"DY2","SDM",time,4.5,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SDM",time,4.5,cargo_mass-150,N_PAX,fly_time)
     work="to UAK to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="new AWS install at NSE"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"GOH","NSE",time,4.5,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"GOH","NSE",time,4.5,cargo_mass,N_PAX,fly_time)
     work="transit to KUS"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NSE","KUS",time,18,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NSE","KUS",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"GOH","NSE","KUS","",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=0*new_AWS_mass+tools_mass
     work="transit to AEY"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"KUS","AEY",time,4.5,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"KUS","AEY",time,4.5,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
 if campaign=="NE_chartering_2021_Aug_Borek":
@@ -451,10 +460,10 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 8, 7)
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=0 # for transit from Iceland
     work="transit from Iqaluit with no cargo"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"IKA","SFJ",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"IKA","SFJ",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"IKA","SFJ","","",red)
@@ -462,12 +471,13 @@ if campaign=="NE_chartering_2021_Aug_Borek":
 
     # ------------------------------------------------ new fly day
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
-    work="refuel at Summit. basic maintanance at Summit"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","SUM",time,4,cargo_mass,N_PAX,fly_time)
+    work="refuel at Summit 2 x 200 liters. basic maintanance at Summit"
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","SUM",time,4,cargo_mass,N_PAX,fly_time)
+    fuel_remaining+=400
     work="EGP new AWS install. Twin Otter overnights"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","SUM","EGP","",blue)
@@ -481,12 +491,12 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="maintanance at NASA-E"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
     work="return to EGP for overnight 2"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAE","EGP","",orange)
@@ -495,12 +505,12 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="crane maintanance at NASA-U"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"EGP","NAU",time,4.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"EGP","NAU",time,4.,cargo_mass,N_PAX,fly_time)
     work="return to coast. Upernavik"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NAU","JUV",time,18.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAU","JUV",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAU","JUV","",black)
@@ -514,12 +524,12 @@ if campaign=="NE_chartering_2021_Aug_Borek":
 
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="flight to SFJ via JUV"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JUV","JAV",time,0.7,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JUV","JAV",time,0.7,cargo_mass,N_PAX,fly_time)
     work="refuel in JAV then end day in SFJ"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SFJ",time,18.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SFJ",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"JUV","JAV","SFJ","",black)
@@ -527,10 +537,10 @@ if campaign=="NE_chartering_2021_Aug_Borek":
 
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="return to Canada"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","IKA",time,18.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","IKA",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","IKA","","",black)
@@ -543,10 +553,10 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 8, 7)
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="transit from Iceland with some cargo"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"AEY","CNP",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"AEY","CNP",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"AEY","CNP","","",red)
@@ -554,12 +564,12 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
 
     # ------------------------------------------------ new fly day
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="refuel at Summit. basic maintanance at Summit"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"CNP","SUM",time,4,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CNP","SUM",time,4,cargo_mass,N_PAX,fly_time)
     work="EGP new AWS install. Twin Otter overnights"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"CNP","SUM","EGP","",blue)
@@ -567,12 +577,12 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
 
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="maintanance at Summit"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"EGP","NAE",time,4.,cargo_mass,N_PAX,fly_time)
     work="return to EGP for overnight 2"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAE","EGP","",orange)
@@ -580,12 +590,12 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
 
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="crane maintanance at NASA-U"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"EGP","NAU",time,4.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"EGP","NAU",time,4.,cargo_mass,N_PAX,fly_time)
     work="return to coast. Upernavik"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NAU","JUV",time,18.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAU","JUV",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAU","JUV","",black)
@@ -593,10 +603,10 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
 
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="return toward Iceland via Nuuk"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JUV","GOH",time,18.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JUV","GOH",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"JUV","GOH","","",black)
@@ -604,10 +614,10 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
 
     # ------------------------------------------------ new fly day
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="return toward Iceland"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"GOH","AEY",time,18.,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"GOH","AEY",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","AEY","","",black)
@@ -619,20 +629,20 @@ if campaign=="Swiss_Camp_2021_July_23-30":
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 7, 23)
     cargo_mass=150
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="put in full load to Swiss Camp. first arrival after 1 year. PAX names: Derek Houtz. Jason Box. Simon Steffen. nn1"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
     work="return empty to JAV"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=13 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=13 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="put in with 1 PAX remaining gear"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
@@ -640,58 +650,58 @@ if campaign=="Swiss_Camp_2021_July_23-30":
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 7, 27)
     day_counter=1
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="flight 1 of full day charter. come in with tents for memorial event. set up sling operation. take out a ful load of stuff back to JAV in cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     work="flight 2 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     work="flight 3 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     work="flight 4 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
     # ------------------------------------------------ new fly day
     day_counter+=1 ; date+=datetime.timedelta(days=1)
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="bring one PAX in. Paolo Solari Bozzi. Marina Aliverti. and others? do memorial event with visitors this day?"
     N_PAX=2
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="bring 5 more PAX in for memorial event. Names as yet underfined. 2 come back after 1.5 h ground stop. leaving 10 on camp."
     N_PAX=5
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="Pull all out"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5,fly_time)
 
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3,fly_time)
 
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 if campaign=="Swiss_Camp_2021_July_16-23":
 
@@ -699,20 +709,20 @@ if campaign=="Swiss_Camp_2021_July_16-23":
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 7, 16)
     cargo_mass=150
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="put in full load to Swiss Camp. first arrival after 1 year. PAX names: Derek Houtz. Jason Box. Simon Steffen. nn1"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,cargo_mass,4,fly_time)
     work="return empty to JAV"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,0,4,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=13 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=13 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="put in with 1 PAX remaining gear"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,250,1,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,250,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     output_kml(campaign,day_counter,"JAV","SWC","JAV","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
@@ -720,58 +730,58 @@ if campaign=="Swiss_Camp_2021_July_16-23":
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 7, 20)
     day_counter=1
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="flight 1 of full day charter. come in with tents for memorial event. set up sling operation. take out a ful load of stuff back to JAV in cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     work="flight 2 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     work="flight 3 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
 
     work="flight 4 of full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
     work="return with sling or full cabin"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,450,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
     # ------------------------------------------------ new fly day
     day_counter+=1 ; date+=datetime.timedelta(days=1)
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="bring one PAX in. Paolo Solari Bozzi. Marina Aliverti. and others? do memorial event with visitors this day?"
     N_PAX=2
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,200,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="bring 5 more PAX in for memorial event. Names as yet underfined. 2 come back after 1.5 h ground stop. leaving 10 on camp."
     N_PAX=5
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,1.5,100,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,200,0,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="Pull all out"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,5,fly_time)
 
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,3,fly_time)
 
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SWC",time,0.5,0,0,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SWC","JAV",time,0.5,100,2,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
 if campaign=="NW_chartering_2021_Nordland":
@@ -780,10 +790,10 @@ if campaign=="NW_chartering_2021_Nordland":
     date = datetime.date(2021, 8, 19)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit to W Greenland."
     ground_stop_time=18
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"AEY","SFJ",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"AEY","SFJ",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","THU","","",red)
@@ -791,66 +801,66 @@ if campaign=="NW_chartering_2021_Nordland":
     
      # ------------------------------------------------ new fly day
     work="transit to Thule"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     work="pick people and cargo. move people and cargo to QAN airport"
     N_PAX=3 # for transit to THU
     cargo_mass=2*new_AWS_mass+tools_mass+crane_mass
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"THU","QAN",time,ground_stop_time,cargo_mass,3,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","QAN",time,ground_stop_time,cargo_mass,3,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"THU","QAN","QAN","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
        
    # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
     work="new AWS install at Petermann ELA"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","PET",time,0.7,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","PET",time,0.7,cargo_mass,N_PAX,fly_time)
     work="return to QAN to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","PET","QAN","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
    # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="long day. new AWS install at Neem and visit Humboldt after NEEM landing and ground stop. no crane?"
     ground_stop_time=4.
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","NEM",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","NEM",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     work="new AWS install at Neem. recover some Neem kit? 4.5 h ground stop. after this and visit Humboldt after NEEM landing and "
     ground_stop_time=2.
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NEM","HUM",time,ground_stop_time,cargo_mass-100,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NEM","HUM",time,ground_stop_time,cargo_mass-100,N_PAX,fly_time)
     work="return to QAAN to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","NEM","HUM","QAN",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
    # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="service 1 existing AWS. 3 other towers. no crane?"
     ground_stop_time=5
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","CEN",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","CEN",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     work="return to QAN to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","CEN","QAN","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
    # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
     work="return PAX to THU then return plane to soutward"
     ground_stop_time=1
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     work="return to YRB with no PAX"
     N_PAX=0 # return to YRB with no pax
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"THU","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","THU","YRB","",black)
@@ -859,7 +869,7 @@ if campaign=="NW_chartering_2021_Nordland":
      # ------------------------------------------------ new fly day
     cargo_mass=0
     work="to Icelamd"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"SFJ","AEY",time,18,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","AEY",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","AEY","","",red)
@@ -900,69 +910,70 @@ if campaign=="NW_chartering_2021_Borek":
     date = datetime.date(2021, 8, 20)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit to Greenland."
     day_counter=1
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"YRB","THU",time,1,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"YRB","THU",time,1,cargo_mass,N_PAX,fly_time)
     work="move people and cargo to QAN airport"
     N_PAX=3 # for transit to THU
     cargo_mass=2*new_AWS_mass+tools_mass+crane_mass
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"THU","QAN",time,18,cargo_mass,3,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","QAN",time,18,cargo_mass,3,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"YRB","THU","QAN","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
        
    # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
     work="new AWS install at Petermann ELA"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","PET",time,0.7,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","PET",time,0.7,cargo_mass,N_PAX,fly_time)
     work="return to QAN to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","PET","QAN","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
    # ------------------------------------------------ new fly day
-    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
-    work="long day. new AWS install at Neem and visit Humboldt after NEEM landing and ground stop. no crane?"
+    work="long day. bring 1 x 200 l fuel barrel with. new AWS install at Neem and visit Humboldt after NEEM landing and ground stop. no crane?"
     ground_stop_time=4.
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","NEM",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","NEM",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    fuel_remaining+=200
     work="new AWS install at Neem. recover some Neem kit? 4.5 h ground stop. after this and visit Humboldt after NEEM landing and "
     ground_stop_time=2.
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"NEM","HUM",time,ground_stop_time,cargo_mass-100,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NEM","HUM",time,ground_stop_time,cargo_mass-100,N_PAX,fly_time)
     work="return to QAAN to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","NEM","HUM","QAN",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
    # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="service 1 existing AWS. 3 other towers. no crane?"
     ground_stop_time=5
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","CEN",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","CEN",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     work="return to QAN to overnight"
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","CEN","QAN","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
    # ------------------------------------------------ new fly day
-    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0
+    start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
     work="return PAX to THU then return plane to YRB"
     ground_stop_time=1
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"QAN","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAN","THU",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     work="return to YRB with no PAX"
     N_PAX=0 # return to YRB with no pax
-    time,fly_time,fuel_use=inter_dist(fuel_use,work,date,start_time,day_counter,"THU","YRB",time,18,cargo_mass-50,N_PAX,fly_time)
+    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","YRB",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
     out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","THU","YRB","",black)
