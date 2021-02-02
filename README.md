@@ -10,7 +10,7 @@ in AWS_maintenance_flight_planner.py the user inserts flight plan data including
 
 **flight plan outputs**
 
-csv and Excel table that includes:
+csv and Excel summary table that includes:
 - calendar dates
 - number of flight days from start to end of charter
 - distances between 'airports'
@@ -21,6 +21,11 @@ csv and Excel table that includes:
 - activities for each flight leg
 - adding taxi and circling time
 - total fly time not including taxi and circling
+
+csv and Excel campaign totals tables that includes:
+- total campaign flight hours
+- total fuel usage
+- cost of all fuel used in the campaign
 
     
 **kml Google Earth** lines between places
