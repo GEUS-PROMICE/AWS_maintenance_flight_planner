@@ -1,28 +1,28 @@
-date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
-2021-06-16,Wednesday,1,8.5,IKA,GOH,0,0,446,3.6,12.1,end of flying,63.7553,-68.5506,64.1917,-51.6742,Iqaluit,Nuuk,140,transit to Greenland.
+date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),fuel consumption litres,fuel consumption cost kDKK,arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
+2021-06-16,Wednesday,1,8.5,IKA,GOH,0,0,446,3.6,1274,13,12.1,end of flying,63.7553,-68.5506,64.1917,-51.6742,Iqaluit,Nuuk,140,transit to Greenland.
 ,,,,,,,,total fly time no taxi or circling,3.2
 2021-06-17,Thursday,2 weather delay,,,,,,,,,,,,,,,,,organize AWS
-2021-06-18,Friday,3,8.25,GOH,SFJ,750,3,171,1.6,9.9,1,64.1917,-51.6742,67.0106,-50.7110,Nuuk,Kangerlussuaq,140,transit to SFJ with 4 x AWS. leave 3 in SFJ at refueling
-2021-06-18,Friday,3,8.25,SFJ,DY2,250,3,110,1.2,12.1,4.5,67.0106,-50.7110,66.4800,-46.2789,Kangerlussuaq,DYE-II,140,first AWS maintenance. new AWS installation at DY2
-2021-06-18,Friday,3,8.25,DY2,SFJ,200,3,110,1.2,17.7,end of flying,66.4800,-46.2789,67.0106,-50.7110,DYE-II,Kangerlussuaq,140,return to SFJ to overnight
+2021-06-18,Friday,3,8.25,GOH,SFJ,750,3,171,1.6,490,5,9.9,1,64.1917,-51.6742,67.0106,-50.7110,Nuuk,Kangerlussuaq,140,transit to SFJ with 4 x AWS. leave 3 in SFJ at refueling
+2021-06-18,Friday,3,8.25,SFJ,DY2,250,3,110,1.2,1294,13,12.1,4.5,67.0106,-50.7110,66.4800,-46.2789,Kangerlussuaq,DYE-II,140,first AWS maintenance. new AWS installation at DY2
+2021-06-18,Friday,3,8.25,DY2,SFJ,200,3,110,1.2,2414,24,17.7,end of flying,66.4800,-46.2789,67.0106,-50.7110,DYE-II,Kangerlussuaq,140,return to SFJ to overnight
 ,,,,,,,,total fly time no taxi or circling,2.8
-2021-06-19,Saturday,4,8.5,SFJ,SDL,250,3,161,1.6,10.1,0.7,67.0106,-50.7110,65.9995,-44.5002,Kangerlussuaq,Saddle,140,AWS maintenance using crane at SDL
-2021-06-19,Saturday,4,8.5,SDL,DY2,200,3,52,0.8,11.5,4.5,65.9995,-44.5002,66.4800,-46.2789,Saddle,DYE-II,140,refuel at Raven/DYE-2 on return
-2021-06-19,Saturday,4,8.5,DY2,SFJ,200,3,110,1.2,17.2,end of flying,66.4800,-46.2789,67.0106,-50.7110,DYE-II,Kangerlussuaq,140,return to SFJ to overnight
+2021-06-19,Saturday,4,8.5,SFJ,SDL,250,3,161,1.6,460,5,10.1,0.7,67.0106,-50.7110,65.9995,-44.5002,Kangerlussuaq,Saddle,140,AWS maintenance using crane at SDL
+2021-06-19,Saturday,4,8.5,SDL,DY2,200,3,52,0.8,1069,11,11.5,4.5,65.9995,-44.5002,66.4800,-46.2789,Saddle,DYE-II,140,refuel at Raven/DYE-2 on return
+2021-06-19,Saturday,4,8.5,DY2,SFJ,200,3,110,1.2,1993,20,17.2,end of flying,66.4800,-46.2789,67.0106,-50.7110,DYE-II,Kangerlussuaq,140,return to SFJ to overnight
 ,,,,,,,,total fly time no taxi or circling,2.3
-2021-06-20,Sunday,5,8.5,SFJ,CP1,130,3,191,1.8,10.3,4.5,67.0106,-50.7110,69.8798,-46.9867,Kangerlussuaq,Crawford Point,140,new AWS install at CP1. bring back whatever we can
-2021-06-20,Sunday,5,8.5,CP1,JAV,130,3,94,1.1,15.8,end of flying,69.8798,-46.9867,69.2405,-51.0664,Crawford Point,Ilulissat,140,return to JAV to overnight
+2021-06-20,Sunday,5,8.5,SFJ,CP1,130,3,191,1.8,547,6,10.3,4.5,67.0106,-50.7110,69.8798,-46.9867,Kangerlussuaq,Crawford Point,140,new AWS install at CP1. bring back whatever we can
+2021-06-20,Sunday,5,8.5,CP1,JAV,130,3,94,1.1,1363,14,15.8,end of flying,69.8798,-46.9867,69.2405,-51.0664,Crawford Point,Ilulissat,140,return to JAV to overnight
 ,,,,,,,,total fly time no taxi or circling,2.0
 2021-06-21,Monday,6 weather delay,,,,,,,,,,,,,,,,,relax
-2021-06-22,Tuesday,7,8.0,JAV,DY2,250,3,199,1.8,9.8,0.6,69.2405,-51.0664,66.4800,-46.2789,Ilulissat,DYE-II,140,long day. refuel at Raven/DYE-2. proceed to SDM
-2021-06-22,Tuesday,7,8.0,DY2,SDM,100,3,204,1.9,12.3,4.5,66.4800,-46.2789,63.1489,-44.8172,DYE-II,South Dome,140,to SDM. 2950 m ASL
-2021-06-22,Tuesday,7,8.0,SDM,UAK,100,3,121,1.3,18.0,end of flying,63.1489,-44.8172,61.1614,-45.4178,South Dome,Narsarsuaq,140,to UAK to overnight
+2021-06-22,Tuesday,7,8.0,JAV,DY2,250,3,199,1.8,567,6,9.8,0.6,69.2405,-51.0664,66.4800,-46.2789,Ilulissat,DYE-II,140,long day. refuel at Raven/DYE-2. proceed to SDM
+2021-06-22,Tuesday,7,8.0,DY2,SDM,100,3,204,1.9,1717,17,12.3,4.5,66.4800,-46.2789,63.1489,-44.8172,DYE-II,South Dome,140,to SDM. 2950 m ASL
+2021-06-22,Tuesday,7,8.0,SDM,UAK,100,3,121,1.3,3213,33,18.0,end of flying,63.1489,-44.8172,61.1614,-45.4178,South Dome,Narsarsuaq,140,to UAK to overnight
 ,,,,,,,,total fly time no taxi or circling,3.7
-2021-06-23,Wednesday,8,8.0,UAK,GOH,250,3,251,2.2,10.2,0.6,61.1614,-45.4178,64.1917,-51.6742,Narsarsuaq,Nuuk,140,transit
+2021-06-23,Wednesday,8,8.0,UAK,GOH,250,3,251,2.2,718,7,10.2,0.6,61.1614,-45.4178,64.1917,-51.6742,Narsarsuaq,Nuuk,140,transit
 ,,,,,,,,total fly time no taxi or circling,1.8
-2021-06-24,Thursday,9,8.0,GOH,NSE,250,3,268,2.3,10.3,4.5,64.1917,-51.6742,66.4797,-42.5002,Nuuk,NASA-SE,140,new AWS install at NSE
-2021-06-24,Thursday,9,8.0,NSE,DY2,100,3,91,1.0,15.9,0.5,66.4797,-42.5002,66.4800,-46.2789,NASA-SE,DYE-II,140,transit to DY2 to refuel
-2021-06-24,Thursday,9,8.0,DY2,SFJ,100,3,110,1.2,17.6,0.5,66.4800,-46.2789,67.0106,-50.7110,DYE-II,Kangerlussuaq,140,transit to SFJ
+2021-06-24,Thursday,9,8.0,GOH,NSE,250,3,268,2.3,767,8,10.3,4.5,64.1917,-51.6742,66.4797,-42.5002,Nuuk,NASA-SE,140,new AWS install at NSE
+2021-06-24,Thursday,9,8.0,NSE,DY2,100,3,91,1.0,1793,18,15.9,0.5,66.4797,-42.5002,66.4800,-46.2789,NASA-SE,DYE-II,140,transit to DY2 to refuel
+2021-06-24,Thursday,9,8.0,DY2,SFJ,100,3,110,1.2,3134,32,17.6,0.5,66.4800,-46.2789,67.0106,-50.7110,DYE-II,Kangerlussuaq,140,transit to SFJ
 ,,,,,,,,total fly time no taxi or circling,3.4
-2021-06-25,Friday,10,8.0,SFJ,IKA,0,3,487,3.9,11.9,4.5,67.0106,-50.7110,63.7553,-68.5506,Kangerlussuaq,Iqaluit,140,transit back to Canada
+2021-06-25,Friday,10,8.0,SFJ,IKA,0,3,487,3.9,1391,14,11.9,4.5,67.0106,-50.7110,63.7553,-68.5506,Kangerlussuaq,Iqaluit,140,transit back to Canada
 ,,,,,,,,total fly time no taxi or circling,3.5

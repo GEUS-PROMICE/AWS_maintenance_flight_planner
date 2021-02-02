@@ -1,0 +1,9 @@
+date (YYYY-MM-DD),fly_time,fuel consumption litres,fuel consumption cost kDKK,last activity
+2021-06-16,3.2,1274,12.9,transit to Greenland.
+2021-06-18,2.8,2414,24.5,return to SFJ to overnight
+2021-06-19,2.3,1993,20.2,return to SFJ to overnight
+2021-06-22,3.7,3213,32.6,to UAK to overnight
+2021-06-23,1.8,718,7.3,transit
+2021-06-24,3.4,3134,31.8,transit to SFJ
+2021-06-25,3.5,1391,14.1,transit back to Canada
+total,20.7,14137,143.39999999999998,
