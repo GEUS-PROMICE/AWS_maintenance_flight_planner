@@ -1,7 +1,12 @@
-date (YYYY-MM-DD),fly_time,fuel consumption litres,fuel consumption cost kDKK,last activity
-2021-08-07,3.5,1391,14.1,transit from Iqaluit with no cargo
-2021-08-08,4.3,2933,29.7,EGP new AWS install. Twin Otter overnights
-2021-08-10,1.4,846,8.6,return to EGP for overnight 2
-2021-08-11,2.6,1742,17.7,return to coast. Upernavik
-2021-08-13,2.6,1731,17.5,refuel in JAV then end day in SFJ
-2021-08-14,3.5,1391,14.1,return to Canada
+date (YYYY-MM-DD),fly_time,fly_cost,fuel consumption litres,fuel consumption cost kDKK,day cost per all people,last activity
+2021-08-07,3.5,46.6,1391,14.1,7.5,transit from Iqaluit with no cargo
+2021-08-08,4.3,58.1,2933,29.7,15.0,EGP new AWS install. Twin Otter overnights
+2021-08-09,4.0,53.6,0,0.0,15.0,wx delay day
+2021-08-10,1.4,18.9,846,8.6,15.0,return to EGP for overnight 2
+2021-08-11,2.6,35.4,1742,17.7,15.0,return to coast. Upernavik
+2021-08-12,4.0,53.6,0,0.0,15.0,wx delay day
+2021-08-13,2.6,35.4,1731,17.5,15.0,refuel in JAV then end day in SFJ
+2021-08-14,3.5,46.6,1391,14.1,15.0,return to Canada
+total,25.900000000000002,348.20000000000005,10034,101.69999999999999,112.5,
+grand total (MDKK),0.5624000000000001,,,,,
+grand total incl. quarantine (MDKK),0.6374000000000001,,,,,

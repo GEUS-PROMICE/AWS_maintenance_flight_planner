@@ -1,0 +1,14 @@
+date (YYYY-MM-DD),fly_time,fly_cost,fuel consumption litres,fuel consumption cost kDKK,day cost per all people,last activity
+2021-08-19,5.6,122.5,2242,22.7,7.5,transit to W Greenland.
+2021-08-20,10.7,234.6,10664,108.1,15.0,pick people and cargo. move people and cargo to QAN airport
+2021-08-21,2.9,63.9,1754,17.8,15.0,return to QAN to overnight
+2021-08-22,3.6,79.0,3097,31.4,15.0,return to QAAN to overnight
+2021-08-23,1.6,35.1,964,9.8,15.0,return to QAN to overnight
+2021-08-24,5.1,112.1,2218,22.5,7.5,return to YRB with no PAX
+2021-08-25,10.7,234.6,6513,66.0,7.5,to Icelamd
+2021-08-26,2.0,43.7,0,0.0,7.5,wx delay day
+2021-08-27,2.0,43.7,0,0.0,7.5,wx delay day
+2021-08-28,2.0,43.7,0,0.0,7.5,wx delay day
+total,46.2,1012.9000000000002,27452,278.3,105.0,
+grand total (MDKK),1.3962000000000003,,,,,
+grand total incl. quarantine (MDKK),1.4712,,,,,

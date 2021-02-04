@@ -22,11 +22,13 @@ import datetime
 from datetime import date
 import calendar
 
-global cost_per_li,airspeed,fuel_remaining
-cost_per_li=10.14 #DKK per liter
+global cost_per_li,airspeed,fuel_remaining,hourly_rate,N_crew,cost_per_day_person
+cost_per_li=10.14 #DKK per liter, Fuel price at Summit has just been estimated at around 30 DKK/litre
 fuel_remaining=1400#liters https://www.vikingair.com/twin-otter-information/technical-description
 airspeed=140 # kts Twin Otter
 # airspeed=105 # kts Helicopter
+N_crew=3
+cost_per_day_person=2.5 # kDKK, hotel 2k, food 0.5k
 
 working_dir="/Users/jason/Dropbox/AWS/AWS_maintenance_flight_planner/" # change this in your local system
 os.chdir(working_dir)
@@ -197,7 +199,7 @@ def weather_day(day_counter,date):
 # ------------------------------------------------ end function
 
 # ------------------------------------------------ campaigns
-campaign="S_chartering_2021_Nordland"
+# campaign="S_chartering_2021_Nordland"
 # campaign="S_chartering_2021_Borek"
 campaign="NW_chartering_2021_Borek"
 # campaign="NW_chartering_2021_Nordland"
@@ -219,25 +221,28 @@ out_concept.write('date (YYYY-MM-DD),day,day in a row count,start time (first of
 # fuel
 ofile_daily="./planning_info/"+campaign+"_daily_totals"
 out_daily=open(ofile_daily+".csv","w+")
-out_daily.write('date (YYYY-MM-DD),fly_time,fuel consumption litres,fuel consumption cost kDKK,last activity\n')
+out_daily.write('date (YYYY-MM-DD),fly_time,fly_cost,fuel consumption litres,fuel consumption cost kDKK,day cost per all people,last activity\n')
 
 # ------------------------------------------------
 # ------------------------------------------------ start defining all campaigns
 # ------------------------------------------------
 
 if campaign=="S_chartering_2021_Borek":
-
+    hourly_rate=13.39157 #k DKK Borek
+    min_cost_per_day=4
+    day_counter=1
+    
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 6, 16)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
     start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit to Greenland."
-    day_counter=1
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"IKA","GOH",time,18,cargo_mass,N_PAX,fly_time)
     fuel_remaining=1400
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"IKA","GOH","","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -245,9 +250,12 @@ if campaign=="S_chartering_2021_Borek":
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
+    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") 
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     
     # ------------------------------------------------ new fly day
+    day_counter+=1; date+=datetime.timedelta(days=1)
     start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=4*new_AWS_mass+150 # 3 new AWS plus tools_mass
     N_PAX=3
@@ -261,7 +269,7 @@ if campaign=="S_chartering_2021_Borek":
     work="return to SFJ to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -277,11 +285,12 @@ if campaign=="S_chartering_2021_Borek":
     work="return to SFJ to overnight"
     # time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"SFJ","SDL","SFJ","",burlywood)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="new AWS install at CP1. bring back whatever we can"
@@ -289,16 +298,21 @@ if campaign=="S_chartering_2021_Borek":
     work="return to JAV to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------ artifical weather delay
+    day_counter+=1; date+=datetime.timedelta(days=1)
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,relax\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
+    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,relax\n")
+    fly_time=min_cost_per_day ; work='wx delay day'
+    fly_time=min_cost_per_day ; fuel_use=0.
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     
     # ------------------------------------------------ new fly day
+    day_counter+=1; date+=datetime.timedelta(days=1)
     start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="long day. bring fuel drum with. refuel 200 liters at Raven/DYE-2. proceed to SDM"
@@ -309,20 +323,21 @@ if campaign=="S_chartering_2021_Borek":
     work="to UAK to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
     
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=1*new_AWS_mass+tools_mass
     work="new AWS install at NSE"
@@ -333,22 +348,26 @@ if campaign=="S_chartering_2021_Borek":
     work="transit to SFJ"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,0.5,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"GOH","NSE","DY2","SFJ",orange)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     cargo_mass=0
     work="transit back to Canada"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","IKA",time,4.5,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"SFJ","IKA","","",red)
 
 
 if campaign=="S_chartering_2021_Nordland":
-
+    hourly_rate=21.850 #kDKK Nordland
+    min_cost_per_day=2
+    day_counter=1
 
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 6, 16)
@@ -360,6 +379,7 @@ if campaign=="S_chartering_2021_Nordland":
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"AEY","KUS",time,1,cargo_mass,N_PAX,fly_time)
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"KUS","GOH",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"AEY","KUS","GOH","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -367,7 +387,9 @@ if campaign=="S_chartering_2021_Nordland":
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
+    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") 
+    fly_time=min_cost_per_day ; fuel_use=0.
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     
     # ------------------------------------------------ new fly day
     start_time=8.25 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
@@ -381,6 +403,7 @@ if campaign=="S_chartering_2021_Nordland":
     work="return to SFJ to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","DY2","SFJ","",aqua)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -394,6 +417,7 @@ if campaign=="S_chartering_2021_Nordland":
     work="return to SFJ to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"DY2","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","SDL","DY2","SFJ",burlywood)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -405,6 +429,7 @@ if campaign=="S_chartering_2021_Nordland":
     work="return to JAV to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CP1","JAV",time,18,cargo_mass-120,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","CP1","JAV","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -413,6 +438,8 @@ if campaign=="S_chartering_2021_Nordland":
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
     out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,relax\n") ; day_counter+=1; date+=datetime.timedelta(days=1)
+    fly_time=min_cost_per_day ; fuel_use=0.
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     
     # ------------------------------------------------ new fly day
     start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
@@ -424,6 +451,7 @@ if campaign=="S_chartering_2021_Nordland":
     work="to UAK to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SDM","UAK",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"JAV","DY2","SDM","UAK",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -432,6 +460,7 @@ if campaign=="S_chartering_2021_Nordland":
     work="transit"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","GOH",time,0.6,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"UAK","GOH","","",blueviolet)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -443,6 +472,7 @@ if campaign=="S_chartering_2021_Nordland":
     work="transit to KUS"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NSE","KUS",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","NSE","KUS","",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -451,11 +481,13 @@ if campaign=="S_chartering_2021_Nordland":
     cargo_mass=0*new_AWS_mass+tools_mass
     work="transit to AEY"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"KUS","AEY",time,4.5,cargo_mass,N_PAX,fly_time)
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+    output_kml(campaign,day_counter,"KUS","AEY","","",orange)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
 if campaign=="NE_chartering_2021_Aug_Borek":
-# Where HUB is either CNP or DAN/ZAC
-
+    hourly_rate=13.39157 #k DKK Borek
+    min_cost_per_day=4
     day_counter=1
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 8, 7)
@@ -465,11 +497,11 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     work="transit from Iqaluit with no cargo"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"IKA","SFJ",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"IKA","SFJ","","",red)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     cargo_mass=1*new_AWS_mass+tools_mass+crane_mass
     start_time=8. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
@@ -479,17 +511,20 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     work="EGP new AWS install. Twin Otter overnights"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","SUM","EGP","",blue)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
@@ -498,12 +533,11 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     work="return to EGP for overnight 2"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAE","EGP","",orange)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)    
-
     
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
@@ -512,17 +546,20 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     work="return to coast. Upernavik"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAU","JUV",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAU","JUV","",black)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
 
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
@@ -531,24 +568,25 @@ if campaign=="NE_chartering_2021_Aug_Borek":
     work="refuel in JAV then end day in SFJ"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JAV","SFJ",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"JUV","JAV","SFJ","",black)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
     work="return to Canada"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","IKA",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","IKA","","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
 if campaign=="NE_chartering_2021_Aug_Nordland":
 # Where HUB is either CNP or DAN/ZAC
-
+    hourly_rate=21.850 #kDKK Nordland
+    min_cost_per_day=2
     day_counter=1
     # ------------------------------------------------ new fly day
     date = datetime.date(2021, 8, 7)
@@ -558,7 +596,7 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     work="transit from Iceland with some cargo"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"AEY","CNP",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"AEY","CNP","","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -571,11 +609,21 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     work="EGP new AWS install. Twin Otter overnights"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SUM","EGP",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"CNP","SUM","EGP","",blue)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)    
+
+    # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
+    weekday=date.weekday()
+    day_name=calendar.day_name[date.weekday()]
+    out_string=str(date)+","+str(day_name)+","+str(day_counter)
+    # day_counter,date=weather_day(day_counter,date)
+    out_concept.write(out_string+" weather delay,,,,,,,,,,,,,,,,,organize AWS\n") 
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
 
     # ------------------------------------------------ new fly day
+    day_counter+=1 ; date+=datetime.timedelta(days=1)
     cargo_mass=0*new_AWS_mass+tools_mass+crane_mass
     start_time=9. ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     N_PAX=3 # for transit from Iceland
@@ -584,7 +632,7 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     work="return to EGP for overnight 2"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAE","EGP",time,4.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAE","EGP","",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
@@ -597,7 +645,7 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     work="return to coast. Upernavik"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"NAU","JUV",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"EGP","NAU","JUV","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
@@ -608,7 +656,7 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     work="return toward Iceland via Nuuk"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"JUV","GOH",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"JUV","GOH","","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
@@ -619,7 +667,7 @@ if campaign=="NE_chartering_2021_Aug_Nordland":
     work="return toward Iceland"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"GOH","AEY",time,18.,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"GOH","AEY","","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)    
 
@@ -785,7 +833,9 @@ if campaign=="Swiss_Camp_2021_July_16-23":
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
 
 if campaign=="NW_chartering_2021_Nordland":
-     # ------------------------------------------------ new fly day
+    hourly_rate=21.850 #kDKK Nordland
+    min_cost_per_day=2
+    # ------------------------------------------------ new fly day
     day_counter=1
     date = datetime.date(2021, 8, 19)
     cargo_mass=0 # for transit from Iceland
@@ -795,7 +845,7 @@ if campaign=="NW_chartering_2021_Nordland":
     ground_stop_time=18
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"AEY","SFJ",time,ground_stop_time,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","THU","","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
     
@@ -807,7 +857,7 @@ if campaign=="NW_chartering_2021_Nordland":
     cargo_mass=2*new_AWS_mass+tools_mass+crane_mass
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","QAN",time,ground_stop_time,cargo_mass,3,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"THU","QAN","QAN","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
        
@@ -819,7 +869,7 @@ if campaign=="NW_chartering_2021_Nordland":
     work="return to QAN to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","PET","QAN","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -835,7 +885,7 @@ if campaign=="NW_chartering_2021_Nordland":
     work="return to QAAN to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","NEM","HUM","QAN",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -848,7 +898,7 @@ if campaign=="NW_chartering_2021_Nordland":
     work="return to QAN to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","CEN","QAN","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -862,7 +912,7 @@ if campaign=="NW_chartering_2021_Nordland":
     N_PAX=0 # return to YRB with no pax
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","SFJ",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","THU","YRB","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -871,30 +921,40 @@ if campaign=="NW_chartering_2021_Nordland":
     work="to Icelamd"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"SFJ","AEY",time,18,cargo_mass,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"SFJ","AEY","","",red)
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
 
 
 if campaign=="NW_chartering_2021_Borek":
-
+    hourly_rate=13.39157 #k DKK Borek
+    min_cost_per_day=4
 #     Proposed NW Loop:
 
 # Day 1: YRB-THU-QAN (move people and cargo to QAN airport)
@@ -907,19 +967,20 @@ if campaign=="NW_chartering_2021_Borek":
 # Day 8: Weather
 
      # ------------------------------------------------ new fly day
+    day_counter=1
     date = datetime.date(2021, 8, 20)
     cargo_mass=0 # for transit from Iceland
     N_PAX=0 # for transit from Iceland
     start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=1400
     work="transit to Greenland."
-    day_counter=1
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"YRB","THU",time,1,cargo_mass,N_PAX,fly_time)
     work="move people and cargo to QAN airport"
     N_PAX=3 # for transit to THU
     cargo_mass=2*new_AWS_mass+tools_mass+crane_mass
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","QAN",time,18,cargo_mass,3,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"YRB","THU","QAN","",red)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
        
@@ -931,7 +992,8 @@ if campaign=="NW_chartering_2021_Borek":
     work="return to QAN to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"PET","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"QAN","PET","QAN","",blue)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -948,7 +1010,8 @@ if campaign=="NW_chartering_2021_Borek":
     work="return to QAAN to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"HUM","QAN",time,18,cargo_mass-150,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"QAN","NEM","HUM","QAN",orange)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -961,7 +1024,8 @@ if campaign=="NW_chartering_2021_Borek":
     work="return to QAN to overnight"
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"CEN","QAN",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
     output_kml(campaign,day_counter,"QAN","CEN","QAN","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
@@ -975,27 +1039,37 @@ if campaign=="NW_chartering_2021_Borek":
     N_PAX=0 # return to YRB with no pax
     time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"THU","YRB",time,18,cargo_mass-50,N_PAX,fly_time)
     out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+","+work+"\n")
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(3+N_crew))+","+work+"\n")
     output_kml(campaign,day_counter,"QAN","THU","YRB","",black)
     day_counter+=1 ; date+=datetime.timedelta(days=1)
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
 
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
-
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+    
     # ------------------------------------ artifical weather delay
+    day_counter+=1 ; date+=datetime.timedelta(days=1)    
     weekday=date.weekday()
     day_name=calendar.day_name[date.weekday()]
     out_string=str(date)+","+str(day_name)+","+str(day_counter)
-    day_counter,date=weather_day(day_counter,date)
+    # day_counter,date=weather_day(day_counter,date)
+    fly_time=min_cost_per_day ; fuel_use=0. ; work='wx delay day'
+    out_daily.write(str(date)+",{:.1f}".format(fly_time)+",{:.1f}".format(hourly_rate*fly_time)+",{:.0f}".format(fuel_use)+",{:.1f}".format(fuel_use*cost_per_li/1000)+",{:.1f}".format(cost_per_day_person*(N_PAX+N_crew))+","+work+"\n")
+
 # ------------------------------------------------
 # ------------------------------------------------ end define all campaigns
 # ------------------------------------------------
@@ -1015,9 +1089,13 @@ for f in files:
         n=len(df2)
         # asas
         # print(ofile_daily,df2.iloc[n,:])
-        row = ["total", sum(df2.iloc[:,1]), sum(df2.iloc[:,2]),sum(df2.iloc[:,3]),""]
+        row = ["total", sum(df2.iloc[:,1]), sum(df2.iloc[:,2]),sum(df2.iloc[:,3]),sum(df2.iloc[:,4]),sum(df2.iloc[:,5]),""]
+        row2 = ["grand total (MDKK)", (sum(df2.iloc[:,2])+ sum(df2.iloc[:,4])+sum(df2.iloc[:,5]))/1000.,"","","","",""]
+        row3 = ["grand total incl. quarantine (MDKK)", (75+sum(df2.iloc[:,2])+ sum(df2.iloc[:,4])+sum(df2.iloc[:,5]))/1000.,"","","","",""]
         df2.loc[n] = row
-        df2.to_csv(f, index=False)
+        df2.loc[n+1] = row2
+        df2.loc[n+3] = row3
+        df2.to_csv(f+'.csv', index=False)
         # totals=df2.iloc[:,0]
     # write to Excel
     df2.to_excel(f+".xlsx", index=False)

@@ -1,2 +1,13 @@
-date (YYYY-MM-DD),fly_time,fuel consumption litres,fuel consumption cost kDKK,last activity
-total,0,0,0,
+date (YYYY-MM-DD),fly_time,fly_cost,fuel consumption litres,fuel consumption cost kDKK,day cost per all people,last activity
+2021-06-16,6.1,133.1,3787,38.4,7.5,transit to Greenland. bring any cargo from Iceland?
+2021-06-18,6.1,133.1,3787,38.4,7.5,transit to Greenland. bring any cargo from Iceland?
+2021-06-18,2.8,61.1,2414,24.5,15.0,return to SFJ to overnight
+2021-06-19,2.3,50.5,1993,20.2,15.0,return to SFJ to overnight
+2021-06-20,2.0,44.6,1363,13.8,15.0,return to JAV to overnight
+2021-06-22,2.0,44.6,1363,13.8,15.0,return to JAV to overnight
+2021-06-22,3.7,81.7,3213,32.6,15.0,to UAK to overnight
+2021-06-23,1.8,39.2,718,7.3,15.0,transit
+2021-06-24,2.9,64.1,1940,19.7,15.0,transit to KUS
+2021-06-25,3.4,73.7,1350,13.7,15.0,transit to AEY
+total,33.1,725.7000000000002,21928,222.4,135.0,
+grand total (MDKK),1.0831000000000002,,,,,

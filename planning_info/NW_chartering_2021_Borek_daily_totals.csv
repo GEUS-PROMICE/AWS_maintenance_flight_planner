@@ -1,6 +1,12 @@
-date (YYYY-MM-DD),fly_time,fuel consumption litres,fuel consumption cost kDKK,last activity
-2021-08-20,3.3,2478,25.1,move people and cargo to QAN airport
-2021-08-21,2.9,1754,17.8,return to QAN to overnight
-2021-08-22,3.6,3097,31.4,return to QAAN to overnight
-2021-08-23,1.6,964,9.8,return to QAN to overnight
-2021-08-24,3.3,1488,15.1,return to YRB with no PAX
+date (YYYY-MM-DD),fly_time,fly_cost,fuel consumption litres,fuel consumption cost kDKK,day cost per all people,last activity
+2021-08-20,3.3,44.3,2478,25.1,15.0,move people and cargo to QAN airport
+2021-08-21,2.9,39.1,1754,17.8,15.0,return to QAN to overnight
+2021-08-22,3.6,48.4,3097,31.4,15.0,return to QAAN to overnight
+2021-08-23,1.6,21.5,964,9.8,15.0,return to QAN to overnight
+2021-08-24,3.3,44.3,1488,15.1,15.0,return to YRB with no PAX
+2021-08-26,4.0,53.6,0,0.0,7.5,wx delay day
+2021-08-27,4.0,53.6,0,0.0,7.5,wx delay day
+2021-08-28,4.0,53.6,0,0.0,7.5,wx delay day
+total,26.7,358.40000000000003,9781,99.2,97.5,
+grand total (MDKK),0.5551,,,,,
+grand total incl. quarantine (MDKK),0.6301,,,,,
