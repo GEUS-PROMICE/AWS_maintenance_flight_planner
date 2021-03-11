@@ -1,0 +1,25 @@
+date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),fuel consumption litres,fuel consumption cost kDKK,fuel_remaining(liters),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
+2021-07-23,Friday,1,8.5,JAV,JAR,150,3,32,0.6,93,1,1307,9.1,0.5,69.2405,-51.0664,69.4926,-49.7172,Ilulissat,JAR,140,put in full load to Swiss Camp via 1.5 h ground stop at JAR. first arrival to Swiss Camp after 1 year. PAX names: Derek Houtz. Jason Box. Simon Steffen. nn1
+2021-07-23,Friday,1,8.5,JAR,SWC,100,3,8,0.5,209,2,1284,10.1,1.5,69.4926,-49.7172,69.5538,-49.3711,JAR,Swiss Camp,140,after ground stop. to Swiss Camp
+2021-07-23,Friday,1,8.5,SWC,JAV,0,3,41,0.7,441,4,1168,12.3,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,after ground stop. to Swiss Camp
+,,,,,,,,total fly time no taxi or circling,0.6
+2021-07-24,Saturday,2,13,JAV,SWC,250,1,41,0.7,116,1,1284,13.7,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,put in with 1 PAX remaining gear
+2021-07-24,Saturday,2,13,SWC,JAV,250,0,41,0.7,348,4,1168,14.9,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,put in with 1 PAX remaining gear
+,,,,,,,,total fly time no taxi or circling,0.6
+2021-07-28,Wednesday,1,8.25,JAV,SWC,0,0,41,0.7,116,1,1284,8.9,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 1 of 4. full day charter. come in with tents for memorial event. set up sling operation. take out a ful load of stuff back to JAV in cabin
+2021-07-28,Wednesday,1,8.25,SWC,JAV,450,0,41,0.7,348,4,1168,10.1,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,return with sling or full cabin
+2021-07-28,Wednesday,1,8.25,JAV,SWC,0,0,41,0.7,696,7,1052,11.3,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 2 of 4. full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load
+2021-07-28,Wednesday,1,8.25,SWC,JAV,450,0,41,0.7,1160,12,936,12.5,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,return with sling or full cabin
+2021-07-28,Wednesday,1,8.25,JAV,SWC,0,0,41,0.7,1740,18,820,13.7,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 3 of 4. full day charter. come in empty? take out a ful load of stuff back to JAV. could be a sling load
+2021-07-28,Wednesday,1,8.25,SWC,JAV,450,0,41,0.7,2437,25,704,14.9,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,return with sling or full cabin
+2021-07-28,Wednesday,1,8.25,JAV,SWC,0,2,41,0.7,3249,33,588,16.1,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 4 of 4. full day charter. come in +2 PAX take out a ful load of stuff back to JAV. could be a sling load
+2021-07-28,Wednesday,1,8.25,SWC,JAV,450,0,41,0.7,4177,42,472,17.3,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,return with sling or full cabin
+,,,,,,,,total fly time no taxi or circling,2.3
+2021-07-29,Thursday,2,8.5,JAV,SWC,0,0,41,0.7,116,1,1284,9.2,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 1 of 3. full day charter. camp pull out. full cabin or sling
+2021-07-29,Thursday,2,8.5,SWC,JAV,100,0,41,0.7,348,4,1168,10.4,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,flight 1 of 3. full day charter. camp pull out. full cabin or sling
+2021-07-29,Thursday,2,8.5,JAV,SWC,0,0,41,0.7,696,7,1052,11.6,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 2 of 3. full day charter. camp pull out with 1.5h stop at JAR. 2 PAX on return
+2021-07-29,Thursday,2,8.5,SWC,JAR,100,4,8,0.5,1068,11,1029,12.5,1.5,69.5538,-49.3711,69.4926,-49.7172,Swiss Camp,JAR,140,flight 2 of 3. full day charter. camp pull out with 1.5h stop at JAR. 2 PAX on return
+2021-07-29,Thursday,2,8.5,JAR,JAV,100,4,32,0.6,1532,16,936,14.7,0.5,69.4926,-49.7172,69.2405,-51.0664,JAR,Ilulissat,140,flight 2 of 3. full day charter. camp pull out with 1.5h stop at JAR. 2 PAX on return
+2021-07-29,Thursday,2,8.5,JAV,SWC,0,3,41,0.7,2112,21,820,15.9,0.5,69.2405,-51.0664,69.5538,-49.3711,Ilulissat,Swiss Camp,140,flight 3 of 3. full day charter. camp pull out with 1.5h stop at JAR. 3 PAX on return
+2021-07-29,Thursday,2,8.5,SWC,JAV,100,3,41,0.7,2808,28,704,17.0,0.5,69.5538,-49.3711,69.2405,-51.0664,Swiss Camp,Ilulissat,140,flight 3 of 3. full day charter. camp pull out with 1.5h stop at JAR. 3 PAX on return
+,,,,,,,,total fly time no taxi or circling,1.7

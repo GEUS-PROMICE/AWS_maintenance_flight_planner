@@ -23,15 +23,10 @@ from datetime import date
 import calendar
 
 global cost_per_li,airspeed,fuel_remaining,hourly_rate,N_crew,cost_per_day_person
-
 cost_per_li=10.14 #DKK per liter, Fuel price at Summit has just been estimated at around 30 DKK/litre
 fuel_remaining=1400#liters https://www.vikingair.com/twin-otter-information/technical-description
 airspeed=140 # kts Twin Otter
-
-# helicopter
-fuel_remaining=540#https://global-helicopter-service.com/wp-content/uploads/2018/04/AS350B3-tech_data_2009-1.pdf
-airspeed=105 # kts Helicopter
-
+# airspeed=105 # kts Helicopter
 N_crew=3
 cost_per_day_person=2.5 # kDKK, hotel 2k, food 0.5k
 
@@ -41,17 +36,6 @@ os.chdir(working_dir)
 df= pd.read_csv("./planning_info/all_sites.csv")
 df=df.drop(["Unnamed: 0"], axis=1)
 # print(df.columns)
-
-
-# ------------------------------------------------ campaigns
-# campaign="S_chartering_2021_Nordland"
-# campaign="S_chartering_2021_Borek"
-# campaign="NW_chartering_2021_Borek"
-# campaign="NW_chartering_2021_Nordland"
-# campaign="Swiss_Camp_2021_July_23-29"
-# campaign="NE_chartering_2021_Aug_Nordland"
-# campaign="NE_chartering_2021_Aug_Borek"
-campaign="PROMICE_QAS_2021_Sept_1-3"
 
 # ------------------------------------------------ start function to output kml for Google Earth
 def output_kml(campaign,day_counter,A,B,C,D,cchoice)    :
@@ -164,7 +148,6 @@ def inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,A,B,time
     coords_1 = (float(df.lat[df.id==A]),float(df.lon[df.id==A]))
     coords_2 = (float(df.lat[df.id==B]),float(df.lon[df.id==B]))
     fuel_use_rate=400 #l/h
-    fuel_use_rate=155 #l/h
     d=geopy.distance.distance(coords_1, coords_2).nm
     t=d/airspeed
     fly_time+=t # total fly time before taxi time
@@ -215,6 +198,14 @@ def weather_day(day_counter,date):
     return day_counter,date
 # ------------------------------------------------ end function
 
+# ------------------------------------------------ campaigns
+# campaign="S_chartering_2021_Nordland"
+# campaign="S_chartering_2021_Borek"
+# campaign="NW_chartering_2021_Borek"
+# campaign="NW_chartering_2021_Nordland"
+campaign="Swiss_Camp_2021_July_23-29"
+# campaign="NE_chartering_2021_Aug_Nordland"
+# campaign="NE_chartering_2021_Aug_Borek"
 
 # ------------------------------------------------ parameters
 tools_mass=100 # kg
@@ -225,63 +216,17 @@ crane_mass=50 # kg
 # summary table
 ofile="./planning_info/"+campaign
 out_concept=open(ofile+".csv","w+")
-out_concept.write('date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),est. fly+taxi+circle time (h),est. fuel consumption litres,est.fuel consumption cost kDKK,est. fuel_remaining(liters),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work\n')
+out_concept.write('date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),fly+taxi+circle time (h),fuel consumption litres,fuel consumption cost kDKK,fuel_remaining(liters),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work\n')
 
 # fuel
 ofile_daily="./planning_info/"+campaign+"_daily_totals"
 out_daily=open(ofile_daily+".csv","w+")
-out_daily.write('date (YYYY-MM-DD),fly_time,fly_cost,est. fuel consumption litres,est. fuel consumption cost kDKK,day cost per all people,last activity\n')
+out_daily.write('date (YYYY-MM-DD),fly_time,fly_cost,fuel consumption litres,fuel consumption cost kDKK,day cost per all people,last activity\n')
 
 # ------------------------------------------------
 # ------------------------------------------------ start defining all campaigns
 # ------------------------------------------------
 
-if campaign=="PROMICE_QAS_2021_Sept_1-3":
-
-    day_counter=1
-    # ------------------------------------------------ new fly day
-    date = datetime.date(2021, 9, 1)
-    cargo_mass=150
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=540
-    N_PAX=2 
-    work="full day charter 1 of 3. 2 PAX: Jason Box and Jakob Jakobsen. QAS_L and QAS_B work today. first stop QAS_L"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","QAS_L",time,3,cargo_mass,N_PAX,fly_time)
-    work="QAS_B maintenance. bring spare bucket and antifreeze"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAS_L","QAS_B",time,1.5,cargo_mass,N_PAX,fly_time)
-    work="return to base"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAS_B","UAK",time,18,cargo_mass,N_PAX,fly_time)
-    day_counter+=1
-
-    # ------------------------------------------------ new fly day
-    date = datetime.date(2021, 9, 2)
-    cargo_mass=150
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=540
-    N_PAX=2 
-    work="full day charter day 2 of 3. 2 PAX: Jason Box and Jakob Jakobsen. QAS_U and QAS_M work today. first stop QAS_U. 3 h ground stop each stop"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","QAS_U",time,3,cargo_mass,N_PAX,fly_time)
-    work="QAS_M. 3 h ground stop each stop"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAS_U","QAS_M",time,3,cargo_mass,N_PAX,fly_time)
-    work="return to base"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAS_M","UAK",time,18,cargo_mass,N_PAX,fly_time)
-    day_counter+=1
-
-    # ------------------------------------------------ new fly day
-    date = datetime.date(2021, 9, 3)
-    cargo_mass=150
-    start_time=8.5 ; time=start_time ; fly_time=0 ; fuel_use=0 ; fuel_remaining=540
-    N_PAX=2 
-    work="full day charter day 3 of 3. 2 PAX: Jason Box and Jakob Jakobsen. QAS_U and QAS_M work today. first stop QAS_M. 0.75 h ground stop each stop"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"UAK","QAS_U",time,0.75,cargo_mass,N_PAX,fly_time)
-    work="QAS_M. 3 h ground stop each stop"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAS_U","QAS_M",time,0.75,cargo_mass,N_PAX,fly_time)
-    work="return to base"
-    time,fly_time,fuel_use,fuel_remaining=inter_dist(fuel_remaining,fuel_use,work,date,start_time,day_counter,"QAS_M","UAK",time,18,cargo_mass,N_PAX,fly_time)
-    day_counter+=1
-
-    out_concept.write(",,,,,,,,total fly time no taxi or circling,{:.1f}".format(fly_time)+"\n")
-    output_kml(campaign,day_counter,"UAK","QAS_L","QAS_B","",red)
-    day_counter+=1 ; date+=datetime.timedelta(days=1)
-    
 if campaign=="S_chartering_2021_Borek":
     hourly_rate=13.39157 #k DKK Borek
     min_cost_per_day=4

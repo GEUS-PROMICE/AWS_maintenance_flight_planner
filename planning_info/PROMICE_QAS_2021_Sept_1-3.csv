@@ -1,0 +1,15 @@
+date (YYYY-MM-DD),day,day in a row count,start time (first of day),from,to,freight (kg),N PAX,distance (nm),est. fly+taxi+circle time (h),est. fuel consumption litres,est.fuel consumption cost kDKK,est. fuel_remaining(liters),arrival time (local time),stoppage time (h),from lat,from lon,destination lat,destination lon,start location name,landing location name,air speed kt,description of work
+2021-09-01,Wednesday,1,8.5,UAK,QAS_L,150,2,42,0.8,63,1,477,9.3,3,61.1614,-45.4178,61.0307,-46.8491,Narsarsuaq,QAS_L,105,full day charter 1 of 3. 2 PAX: Jason Box and Jakob Jakobsen. QAS_L and QAS_B work today. first stop QAS_L
+2021-09-01,Wednesday,1,8.5,QAS_L,QAS_B,150,2,3,0.4,130,1,473,12.7,1.5,61.0307,-46.8491,61.0760,-46.7930,QAS_L,QAS_B,105,QAS_B maintenance. bring spare bucket and antifreeze
+2021-09-01,Wednesday,1,8.5,QAS_B,UAK,150,2,40,0.8,257,3,413,15.0,end of flying,61.0760,-46.7930,61.1614,-45.4178,QAS_B,Narsarsuaq,105,return to base
+,,,,,,,,total fly time no taxi or circling,0.8
+2021-09-02,Thursday,2,8.5,UAK,QAS_U,150,2,41,0.8,60,1,480,9.3,3,61.1614,-45.4178,61.1748,-46.8200,Narsarsuaq,QAS_U,105,full day charter day 2 of 3. 2 PAX: Jason Box and Jakob Jakobsen. QAS_U and QAS_M work today. first stop QAS_U. 3 h ground stop each stop
+2021-09-02,Thursday,2,8.5,QAS_U,QAS_M,150,2,5,0.4,127,1,473,12.7,3,61.1748,-46.8200,61.0995,-46.8332,QAS_U,QAS_M,105,QAS_M. 3 h ground stop each stop
+2021-09-02,Thursday,2,8.5,QAS_M,UAK,150,2,41,0.8,255,3,412,16.5,end of flying,61.0995,-46.8332,61.1614,-45.4178,QAS_M,Narsarsuaq,105,return to base
+,,,,,,,,total fly time no taxi or circling,0.8
+2021-09-03,Friday,3,8.5,UAK,Q2,100,2,42,0.8,62,1,478,9.3,0.75,61.1614,-45.4178,61.0650,-46.8445,Narsarsuaq,Q2,105,full day charter day 3 of 3. 2 PAX: Jason Box and Jakob Jakobsen. wrapup at QAS_x sites. detailed here are ablation stake visits. 0.75 h ground stop each stop
+2021-09-03,Friday,3,8.5,Q2,Q3,100,2,4,0.4,129,1,473,10.5,0.75,61.0650,-46.8445,61.1251,-46.8299,Q2,Q3,105,Q3. 0.75 h ground stop
+2021-09-03,Friday,3,8.5,Q3,Q4,100,2,2,0.4,199,2,470,11.6,0.75,61.1251,-46.8299,61.1516,-46.8290,Q3,Q4,105,Q4. 0.75 h ground stop
+2021-09-03,Friday,3,8.5,Q4,Q5,100,2,3,0.4,273,3,466,12.8,0.75,61.1516,-46.8290,61.1953,-46.7936,Q4,Q5,105,Q5. 0.75 h ground stop
+2021-09-03,Friday,3,8.5,Q5,UAK,100,2,40,0.8,406,4,407,14.4,end of flying,61.1953,-46.7936,61.1614,-45.4178,Q5,Narsarsuaq,105,return to base
+,,,,,,,,total fly time no taxi or circling,0.9

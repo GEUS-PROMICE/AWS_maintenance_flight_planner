@@ -15,10 +15,11 @@ working_dir='/Users/jason/Dropbox/AWS/AWS_maintenance_flight_planner/' # change 
 os.chdir(working_dir)
 
 
-fn='./input_data/PROMICE_info_from_GPS_data_2017-2018.csv'
+fn='./input_data/PROMICE_info_from_GPS_data_2017-2018_plus_QAS_B.csv'
 df_p = pd.read_csv(fn,sep='\t')
 print(df_p.columns)
-fn='./input_data/GCN info ca.2000.csv'
+# fn='./input_data/GCN info ca.2000.csv'
+fn='./input_data/GCN info ca.2000_2020JARSWC.csv'
 df_g = pd.read_csv(fn)
 print(df_g.columns)
 fn='./input_data/Airports_in_and_Around_Greenland.txt'
